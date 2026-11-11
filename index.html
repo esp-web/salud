@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Detective de la Salud</title>
+<style>:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centered column sized for a tablet, big touch targets, one task on screen at a time */
+:root{
+  --bg:#EDF3F7; --surface:#FFFFFF; --surface-2:#F5F8FB; --ink:#18263A; --muted:#56677D; --line:#D3DEE8;
+  --b1:#0F9A72; --b2:#8448D6; --b3:#2B76DB; --b4:#E07A12;
+  --ok:#1C9455; --ok-soft:#DDF4E7; --err:#D3402F; --err-soft:#FBE3E0; --warn:#C98A00; --warn-soft:#FFF1CC;
+  --focus:#2B76DB;
+  --f-display:"Baloo 2","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-body:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F1823; --surface:#182432; --surface-2:#1F2D3D; --ink:#E7EEF6; --muted:#9FB0C3; --line:#2C3D50;
+    --b1:#34C597; --b2:#B183F2; --b3:#6AA6F5; --b4:#F5A04A;
+    --ok:#44C783; --ok-soft:#173A2A; --err:#F2766A; --err-soft:#43211F; --warn:#F2C14E; --warn-soft:#3D3214;
+    --focus:#6AA6F5;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1823; --surface:#182432; --surface-2:#1F2D3D; --ink:#E7EEF6; --muted:#9FB0C3; --line:#2C3D50;
+  --b1:#34C597; --b2:#B183F2; --b3:#6AA6F5; --b4:#F5A04A;
+  --ok:#44C783; --ok-soft:#173A2A; --err:#F2766A; --err-soft:#43211F; --warn:#F2C14E; --warn-soft:#3D3214;
+  --focus:#6AA6F5;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:19px; line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:780px; margin:0 auto; padding-block:28px 64px; display:flex; flex-direction:column; gap:24px}
+h1,h2,h3{font-family:var(--f-display); line-height:1.1; margin:0; text-wrap:balance}
+h1{font-size:clamp(2.2rem,6vw,3.2rem); font-weight:800}
+h2{font-size:1.7rem; font-weight:700}
+p{margin:0}
+button{font:inherit; color:inherit; cursor:pointer; touch-action:manipulation}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.muted{color:var(--muted)}
+
+/* buttons */
+.btn{border:0; border-radius:999px; padding:14px 26px; min-height:56px; font-weight:600; font-size:1.05rem;
+  background:var(--ink); color:var(--bg); display:inline-flex; align-items:center; justify-content:center; gap:8px}
+.btn.alt{background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 2px var(--line)}
+.btn[disabled]{opacity:.35; cursor:not-allowed}
+.btn:active:not([disabled]){transform:translateY(1px)}
+.linkbtn{background:none; border:0; color:var(--muted); text-decoration:underline; padding:12px; min-height:48px; font-size:.95rem}
+
+/* home */
+.hero{display:flex; flex-direction:column; gap:10px}
+.hero p{max-width:60ch}
+.modes{display:flex; flex-wrap:wrap; gap:12px}
+.grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+.bcard{background:var(--surface); border-radius:var(--r); padding:20px; display:flex; flex-direction:column; gap:12px;
+  border-top:8px solid var(--c)}
+.bcard .top{display:flex; gap:12px; align-items:flex-start}
+.bcard .ico{font-size:2rem; line-height:1}
+.bcard h3{font-size:1.35rem}
+.bcard .num{font-size:.9rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.dots{display:flex; flex-wrap:wrap; gap:6px}
+.dot{width:18px; height:18px; border-radius:50%; box-shadow:inset 0 0 0 2px var(--line); background:transparent}
+.dot.l1{background:color-mix(in srgb, var(--c) 30%, transparent); box-shadow:none}
+.dot.l2{background:color-mix(in srgb, var(--c) 62%, transparent); box-shadow:none}
+.dot.l3{background:var(--c); box-shadow:none}
+.bcard .btn{background:var(--c); color:#fff; align-self:flex-start; margin-top:auto}
+.legend{display:flex; flex-wrap:wrap; gap:16px; font-size:.85rem; color:var(--muted); --c:var(--ink)}
+.legend span{display:inline-flex; gap:6px; align-items:center}
+.legend .dot{width:14px; height:14px}
+
+/* play */
+.bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.bar .linkbtn{margin-left:-12px}
+.steps{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; margin-left:auto}
+.steps i{width:28px; height:8px; border-radius:4px; background:var(--line)}
+.steps i.done{background:var(--ok)}
+.steps i.miss{background:var(--err)}
+.steps i.now{background:var(--ink)}
+.qcard{background:var(--surface); border-radius:var(--r); padding:clamp(20px,4vw,32px); display:flex; flex-direction:column; gap:20px;
+  border-top:8px solid var(--c)}
+.tags{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.tag{font-size:.8rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:5px 12px; border-radius:999px;
+  background:var(--surface-2); color:var(--muted)}
+.lvl{color:#fff}
+.lvl.n1{background:var(--ok)} .lvl.n2{background:var(--warn); color:#1d1500} .lvl.n3{background:var(--err)}
+.question{font-family:var(--f-display); font-size:clamp(1.7rem,4.4vw,2.2rem); font-weight:700; line-height:1.15}
+.howto{font-size:.95rem; color:var(--muted)}
+.sentence{font-size:1.25rem; line-height:2.5; background:var(--surface-2); border-radius:14px; padding:16px 20px}
+.slot{display:inline-block; min-width:110px; min-height:46px; padding:4px 14px; margin:0 2px; vertical-align:middle; line-height:1.6;
+  border:0; border-radius:12px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--line), 0 0 0 0 transparent;
+  font-weight:600; font-size:1.1rem}
+.slot.empty{border-bottom:3px dashed var(--muted)}
+.slot.sel{box-shadow:inset 0 0 0 3px var(--c)}
+.slot.ok,.gap.ok{background:var(--ok-soft); box-shadow:inset 0 0 0 2px var(--ok)}
+.slot.bad,.gap.bad{background:var(--err-soft); box-shadow:inset 0 0 0 2px var(--err); text-decoration:line-through}
+.bank{display:flex; flex-wrap:wrap; gap:10px}
+.chip{border:0; border-radius:12px; padding:10px 18px; min-height:52px; font-weight:600; font-size:1.1rem;
+  background:color-mix(in srgb, var(--c) 16%, var(--surface)); box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent)}
+.chip.used{visibility:hidden}
+.gap{font:inherit; font-weight:600; font-size:1.15rem; color:var(--ink); border:0; border-radius:12px; padding:6px 10px; min-height:46px;
+  margin:0 2px; vertical-align:middle; background:var(--surface); box-shadow:inset 0 0 0 2px var(--line); max-width:100%}
+.gap::placeholder{color:var(--muted); letter-spacing:.12em; font-weight:500}
+textarea{width:100%; min-height:190px; font:inherit; font-size:1.2rem; line-height:1.6; color:var(--ink); background:var(--surface-2);
+  border:0; border-radius:14px; padding:16px 18px; box-shadow:inset 0 0 0 2px var(--line); resize:vertical}
+.actions{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
+.truco{background:var(--warn-soft); border-radius:14px; padding:14px 18px; font-size:1.05rem}
+.fb{border-radius:var(--r); padding:20px 22px; display:flex; flex-direction:column; gap:12px}
+.fb.good{background:var(--ok-soft)} .fb.bad{background:var(--err-soft)}
+.fb .msg{font-family:var(--f-display); font-size:1.6rem; font-weight:700; line-height:1.15}
+.fb .book{font-size:1.15rem}
+.fb .book b{font-weight:600}
+.fb .label{font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; font-weight:600; color:var(--muted)}
+mark{border-radius:6px; padding:0 4px; font-weight:600; color:var(--ink)}
+mark.got{background:color-mix(in srgb, var(--ok) 30%, transparent)}
+mark.miss{background:color-mix(in srgb, var(--err) 30%, transparent)}
+
+/* home: recorrido y progreso por bloque */
+.flow{display:flex; flex-wrap:wrap; gap:8px 14px; font-size:.95rem; color:var(--muted)}
+.flow b{color:var(--ink)}
+.prog{display:grid; grid-template-columns:auto 1fr auto; gap:6px 10px; align-items:center; font-size:.88rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.meter{height:10px; border-radius:5px; background:var(--surface-2); overflow:hidden; box-shadow:inset 0 0 0 1px var(--line)}
+.meter i{display:block; height:100%; background:var(--c)}
+.bbtns{display:flex; flex-wrap:wrap; gap:10px; margin-top:auto}
+.bcard .bbtns .btn{margin-top:0}
+.bcard .btn.alt{background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 2px var(--line)}
+.rec{font-size:.85rem; color:var(--muted)}
+
+/* tarjetas flash */
+.fcard{background:var(--surface); border-radius:var(--r); padding:clamp(22px,4vw,34px); display:flex; flex-direction:column; gap:18px;
+  border-top:8px solid var(--c); min-height:340px}
+.fcard.front{cursor:pointer}
+@media (prefers-reduced-motion: no-preference){
+  .fcard.flip{animation:flip .34s ease-in-out}
+  @keyframes flip{0%{transform:scaleX(.02)}100%{transform:scaleX(1)}}
+}
+.qsmall{font-family:var(--f-display); font-size:1.25rem; font-weight:700; color:var(--muted); line-height:1.2}
+.answer{font-size:1.3rem; line-height:1.75}
+.answer mark{background:color-mix(in srgb, var(--c) 26%, transparent)}
+.tapme{margin-top:auto; text-align:center; color:var(--muted); font-size:1rem}
+.cover{border:0; font:inherit; font-weight:600; padding:0 10px; min-height:40px; border-radius:8px; vertical-align:baseline;
+  background:var(--c); color:transparent; user-select:none}
+.cover.open{background:color-mix(in srgb, var(--c) 26%, transparent); color:var(--ink)}
+.imgs{display:flex; flex-wrap:wrap; gap:12px; justify-content:center}
+.imgs img{max-width:100%; max-height:300px; width:auto; height:auto; border-radius:12px}
+.rate{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.rate .btn{width:100%}
+.btn.again{background:var(--warn-soft); color:var(--ink)}
+.btn.know{background:var(--ok); color:#fff}
+.say{border:0; border-radius:999px; min-height:48px; padding:8px 16px; background:var(--surface-2); font-weight:600; font-size:.95rem; align-self:flex-start}
+.facehead{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between}
+
+/* end */
+.endcard{background:var(--surface); border-radius:var(--r); padding:28px; display:flex; flex-direction:column; gap:18px; align-items:flex-start}
+.big{font-family:var(--f-display); font-size:clamp(3rem,10vw,4.5rem); font-weight:800; line-height:1; font-variant-numeric:tabular-nums}
+.rlist{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; width:100%}
+.rlist li{display:flex; gap:10px; align-items:baseline; padding:10px 14px; background:var(--surface-2); border-radius:12px}
+@media (prefers-reduced-motion: no-preference){
+  .fb{animation:pop .25s ease-out}
+  @keyframes pop{from{transform:scale(.97)}to{transform:none}}
+}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ===== Banco de preguntas: respuestas literales de "Texto-para-estudiar".
+   [palabra] = hueco. [palabra#g] = hueco de una lista donde el orden da igual. ===== */
+const BLOQUES = [
+  {id:1, nombre:'La salud y las enfermedades infecciosas', icon:'🦠', c:'var(--b1)'},
+  {id:2, nombre:'Las enfermedades no infecciosas', icon:'🩹', c:'var(--b2)'},
+  {id:3, nombre:'Diagnóstico, tratamiento y prevención', icon:'🩺', c:'var(--b3)'},
+  {id:4, nombre:'Cuidado de la salud y sistema sanitario', icon:'🏥', c:'var(--b4)'},
+];
+const Q = [
+  // BLOQUE 1
+  {id:'1a', b:1, q:'¿Qué es la salud?', a:'La salud es un estado de completo [bienestar] [físico#a], [mental#a] y [social#a].', truco:'Piensa en FÍ-ME-SO: FÍsico 💪, MEntal 🧠, SOcial 🤝'},
+  {id:'1b', b:1, q:'¿Qué tres aspectos de bienestar deben alcanzarse para tener una buena salud?', a:'Bienestar [físico#a], bienestar [mental#a] y bienestar [social#a].', truco:'FÍ-ME-SO: FÍsico, MEntal, SOcial'},
+  {id:'1c', b:1, q:'¿Qué factores influyen más en nuestra salud?', a:'La [edad#a], nuestro [estilo de vida#a], nuestro [entorno#a] y la [salud pública#a].', truco:'Son 4: cuántos años tienes 🎂, cómo vives 🏃, dónde vives 🏡 y la sanidad de tu país 💉'},
+  {id:'1d', b:1, q:'¿Cómo afecta la sanidad pública a nuestra salud? Pon ejemplos.', a:'La sanidad pública del lugar en el que vivimos afecta a nuestra salud. Por ejemplo, el [control sanitario] de los [alimentos] y el [calendario de vacunación].'},
+  {id:'1e', b:1, q:'¿Qué es la enfermedad?', a:'La enfermedad es una [alteración] del [funcionamiento] del [organismo] o de alguna de sus partes debida a una causa [interna#a] o [externa#a], que se mantiene durante un [período de tiempo].', truco:'Algo del cuerpo deja de funcionar bien ⚙️, por dentro o por fuera, y dura un tiempo ⏳'},
+  {id:'1f', b:1, q:'Según las causas que las provocan, ¿qué dos tipos de enfermedades existen?', a:'Las [infecciosas] y las [no infecciosas].'},
+  {id:'1g', b:1, q:'¿Qué son las enfermedades infecciosas?', a:'Son las que están provocadas por los [agentes infecciosos], seres vivos muy [pequeños] que [entran] en nuestro cuerpo y [alteran] su funcionamiento.', truco:'Infecciosa = hay un bichito dentro 🦠'},
+  {id:'1h', b:1, q:'¿Por dónde pueden entrar los agentes infecciosos en nuestro cuerpo?', a:'A través de [heridas#a], por el [aire#a] o por la [boca#a].', truco:'Herida 🩹, aire 💨, boca 👄'},
+  {id:'1i', b:1, q:'¿Qué diferencia hay entre las enfermedades infecciosas contagiosas y las no contagiosas? Pon ejemplos.', a:'Las contagiosas se [transmiten] de unas personas a otras. Por ejemplo, la [gripe#a], la [COVID-19#a] o el [sarampión#a]. Las no contagiosas [no se transmiten] de unas personas a otras. Por ejemplo, el [tétanos].', truco:'Contagiosa = se CONTAGIA, pasa de una persona a otra 🤧➡️🙍'},
+  {id:'1j', b:1, q:'¿Cuáles son los principales agentes infecciosos?', a:'Las [bacterias#a], los [hongos#a], los [protozoos#a] y los [virus#a].', truco:'Bichos Hacen Pupas Variadas: Bacterias, Hongos, Protozoos, Virus'},
+  {id:'1k', b:1, q:'¿Qué enfermedades provocan las bacterias?', a:'Algunas enfermedades provocadas por bacterias son la [tuberculosis#a] o la [salmonelosis#a].', truco:'La salmonelosis viene de comida en mal estado 🥚'},
+  {id:'1l', b:1, q:'¿Qué enfermedades provocan los hongos?', a:'Algunos hongos provocan enfermedades como el [pie de atleta#a] o la [tiña#a].', truco:'Hongos 🍄 → pie de atleta 🦶'},
+  {id:'1m', b:1, q:'¿Qué hacen los protozoos? Pon un ejemplo.', a:'Algunos [parasitan] a los seres humanos. Es el caso de [Plasmodium], que provoca la [malaria].', truco:'Protozoo → Plasmodium → malaria (las tres con P-P-M 🦟)'},
+  {id:'1n', b:1, q:'¿Qué enfermedades causan los virus?', a:'Algunas enfermedades causadas por virus son la [gripe#a], el [resfriado común#a] y la [COVID-19#a].', truco:'Virus = las de los mocos y la fiebre 🤧'},
+  // BLOQUE 2
+  {id:'2a', b:2, q:'¿Qué son las enfermedades no infecciosas?', a:'Son las que están producidas por causas distintas a los [agentes infecciosos]. A menudo tienen [más de una causa] y [no se transmiten] entre personas.', truco:'NO hay bichito, y NO se contagian 🚫🦠'},
+  {id:'2b', b:2, q:'Nombra los tipos de enfermedades no infecciosas.', a:'El [cáncer#a], las [intoxicaciones#a], los [traumatismos#a], las enfermedades [respiratorias#a], las enfermedades [congénitas#a], las enfermedades [cardiovasculares#a], las [alergias#a], las enfermedades [nutricionales#a] y las del [estado de ánimo#a].', truco:'Son 9. Ve repasando el cuerpo: células, venenos, golpes, pulmones, nacimiento, corazón, polen, comida y mente.'},
+  {id:'2c', b:2, q:'¿Qué es el cáncer?', a:'Se produce por un [crecimiento descontrolado] de nuestras propias [células].'},
+  {id:'2d', b:2, q:'¿Cómo se producen las intoxicaciones?', a:'Se producen al [ingerir#a], [respirar#a] o [tocar#a] sustancias [tóxicas].', truco:'Comer 👄, respirar 👃 o tocar ✋ algo tóxico ☠️'},
+  {id:'2e', b:2, q:'¿Qué son los traumatismos?', a:'Lesiones como las [quemaduras#a], [fracturas#a], [esguinces#a], etc.', truco:'Traumatismo = te haces daño: te quemas 🔥, te rompes un hueso 🦴 o te tuerces el tobillo'},
+  {id:'2f', b:2, q:'¿A qué afectan las enfermedades respiratorias y las cardiovasculares?', a:'Las enfermedades respiratorias afectan al aparato [respiratorio]. Las enfermedades cardiovasculares afectan al aparato [circulatorio].', truco:'CARDIO = corazón ❤️ → aparato circulatorio'},
+  {id:'2g', b:2, q:'¿A qué se deben las enfermedades congénitas?', a:'Se deben a [fallos] que se [heredan] o se producen en el [embarazo#a] o [parto#a].', truco:'Congénita = desde que naces 👶'},
+  {id:'2h', b:2, q:'¿A qué se deben las alergias?', a:'Son [reacciones exageradas] de nuestro cuerpo a sustancias como el [polen#a], [pelo de gatos#a], etc.', truco:'El cuerpo se pasa de exagerado con el polen 🌼 o el pelo del gato 🐱'},
+  {id:'2i', b:2, q:'¿Qué son las enfermedades nutricionales?', a:'Están relacionadas con la [mala alimentación].', truco:'Nutrición = comida 🍎🍔'},
+  {id:'2j', b:2, q:'¿Qué son las enfermedades del estado de ánimo o del comportamiento? Pon ejemplos.', a:'Enfermedades que afectan a nuestro [estado de ánimo] o a la manera de [comportarnos#b] y de [pensar#b]. Por ejemplo, la [depresión#a] y la [anorexia#a].'},
+  // BLOQUE 3
+  {id:'3a', b:3, q:'¿Qué es hacer un diagnóstico?', a:'Hacer un diagnóstico es descubrir qué [enfermedad] padece una persona estudiando los [signos#a] y los [síntomas#a] que presenta.', truco:'Diagnóstico = el médico hace de detective 🕵️ con pistas: signos y síntomas'},
+  {id:'3b', b:3, q:'¿Qué son los síntomas? Pon ejemplos.', a:'Los síntomas son las [sensaciones] de malestar y cambio que percibe el [paciente]. Por ejemplo, [dolor#a], [mareo#a], [picor#a].', truco:'SÍntoma = lo que SÍ sientes tú por dentro 😣'},
+  {id:'3c', b:3, q:'¿Qué son los signos? Pon ejemplos.', a:'Los signos son las [manifestaciones] de la enfermedad que se observan tras una [exploración médica] o haciendo [pruebas diagnósticas]. Por ejemplo, [fiebre#a] de 38 ºC, [erupciones#a], [análisis de sangre#a].', truco:'SIgno = lo que Se ve o Se mide desde fuera 🌡️'},
+  {id:'3d', b:3, q:'Clasifica en signos o síntomas: dolor, temperatura de 38º, mareo, picor, habones rojos en la piel, anginas inflamadas, glóbulos blancos elevados.', a:'Síntomas: [dolor#a], [mareo#a], [picor#a]. Signos: [temperatura de 38º#b], [habones rojos#b], [anginas inflamadas#b], [glóbulos blancos#b].', truco:'¿Lo siente ella por dentro? → síntoma. ¿Lo ve o lo mide el médico? → signo'},
+  {id:'3e', b:3, q:'¿Qué son los medicamentos?', a:'Son [sustancias] que [curan] la causa de la enfermedad o [alivian] sus síntomas.'},
+  {id:'3f', b:3, q:'¿Para qué sirven los antibióticos, los analgésicos y los antiinflamatorios?', a:'Los antibióticos, para tratar enfermedades causadas solo por [bacterias]. Los analgésicos, para reducir el [dolor#a] y bajar la [fiebre#a]. Los antiinflamatorios, para reducir la [inflamación].', truco:'antiBIóticos → contra Bacterias (¡con los virus NO funcionan!)'},
+  {id:'3g', b:3, q:'¿A qué corresponde cada definición? a) Alivia el dolor. b) Elimina bacterias que causan infección. c) Previene que se desarrolle una enfermedad.', a:'a) [analgésico]. b) [antibiótico]. c) [vacuna].'},
+  {id:'3h', b:3, q:'¿Qué es la cirugía?', a:'Son técnicas que utilizan [instrumentos] para [curar] partes del cuerpo [dañadas].', truco:'Cirugía = operación en el quirófano 🔪🏥'},
+  {id:'3i', b:3, q:'¿Qué es prevenir una enfermedad? Pon un ejemplo.', a:'Prevenir una enfermedad es [reducir el riesgo] de padecerla. Las [vacunas], por ejemplo, son preparados que [impiden] que desarrollemos una enfermedad.', truco:'Prevenir = que no llegue a pasar 🛡️'},
+  // BLOQUE 4
+  {id:'4a', b:4, q:'Escribe cinco consejos para cuidar tu salud (parte 1).', a:'Realiza una buena higiene [corporal]. No te olvides de las [revisiones] médicas y sigue el calendario de [vacunación]. Evita conductas de [riesgo]. Lávate las [manos] de forma adecuada y frecuente. Lávate los [dientes] después de cada comida.'},
+  {id:'4b', b:4, q:'Escribe cinco consejos para cuidar tu salud (parte 2).', a:'[Desinfecta] tus heridas. Come de forma [saludable]. Cuida tu bienestar [emocional]. Realiza [ejercicio] a diario y evita el [sedentarismo]. [Descansa#a] y [duerme#a].'},
+  {id:'4c', b:4, q:'¿Por qué debemos lavar nuestro cuerpo y cabello a menudo?', a:'Para prevenir [infecciones#a] y [olores desagradables#a].'},
+  {id:'4d', b:4, q:'¿Qué es el sistema sanitario?', a:'Es el conjunto de [personas#a] y [medios materiales#a] de los que dispone un [país] para [prevenir#b], [diagnosticar#b] y [tratar#b] las enfermedades de la población.'},
+  {id:'4e', b:4, q:'¿Cómo se divide nuestro sistema sanitario?', a:'Atención [primaria]: [centros de salud#a] o [ambulatorios#a]. Atención [especializada]: [hospitales].', truco:'PRIMARIA = a donde vas primero (centro de salud). ESPECIALIZADA = el hospital 🏥'},
+];
+
+// Ilustraciones del libro (carpeta img/). Solo se enseñan en el reverso de la tarjeta.
+const IMG={'1d':['vacuna'],'1j':['agentes'],'1k':['bacterias'],'1l':['hongos'],'1m':['protozoos'],'1n':['virus'],
+  '2b':['no-infecciosas'],'2c':['cancer'],'2d':['intoxicaciones'],'2e':['traumatismos'],'2f':['respiratorias','cardiovasculares'],
+  '2g':['congenitas'],'2h':['alergias'],'2i':['nutricionales'],'2j':['animo'],'3i':['vacuna'],'4a':['consejos'],'4b':['consejos'],'4c':['higiene']};
+
+/* ===== Utilidades ===== */
+const $ = (s, el=document) => el.querySelector(s);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+function lev(a,b){ const m=a.length,n=b.length; if(Math.abs(m-n)>1) return 2; const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=1;j<=n;j++) d[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[m][n]; }
+function match(given, ans, fuzzy){ const g=norm(given), a=norm(ans); if(!g) return false; if(g===a) return true;
+  return fuzzy && a.length>=5 && lev(g,a)<=1; }
+function parse(a){ const toks=[], re=/\[([^\]]+)\]/g; let m, last=0, i=0;
+  while((m=re.exec(a))){ if(m.index>last) toks.push({t:'x', s:a.slice(last,m.index)});
+    const [ans,g]=m[1].split('#'); toks.push({t:'b', i:i++, ans, g:g||null}); last=re.lastIndex; }
+  if(last<a.length) toks.push({t:'x', s:a.slice(last)}); return toks; }
+const blanksOf = q => parse(q.a).filter(t=>t.t==='b');
+function grade(blanks, given, fuzzy){
+  const res=blanks.map(()=>false), groups={};
+  blanks.forEach((b,k)=>{ if(b.g) (groups[b.g]=groups[b.g]||[]).push(k); else res[k]=match(given[k],b.ans,fuzzy); });
+  for(const g in groups){ const pool=groups[g].map(k=>blanks[k].ans);
+    groups[g].forEach(k=>{ const j=pool.findIndex(p=>p!==null && match(given[k],p,fuzzy)); if(j>=0){res[k]=true; pool[j]=null;} }); }
+  return res; }
+// Nivel 3: ¿aparece cada palabra clave en lo que escribió?
+function keywordFound(text, kw){
+  const words=norm(text).split(' ');
+  let parts=norm(kw).split(' ').filter(w=>w.length>2 || /\d/.test(w)); if(!parts.length) parts=norm(kw).split(' ');
+  return parts.every(w=>{ const stem = w.length>5 ? w.slice(0,-2) : w.length>3 ? w.slice(0,-1) : w;
+    return words.some(t=> t.startsWith(stem) || (w.length>=5 && lev(t,w)<=1)); });
+}
+const esc = s => s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ===== Progreso (se guarda en esta tablet) ===== */
+const KEY='detectiveSalud.v1';
+let levels={};
+try{ levels=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ levels={}; }
+const save=()=>{ try{ localStorage.setItem(KEY, JSON.stringify(levels)); }catch(e){} };
+const lv = q => levels[q.id]||0;
+const CKEY='detectiveSalud.cards.v1';
+let learned={};
+try{ learned=JSON.parse(localStorage.getItem(CKEY))||{}; }catch(e){ learned={}; }
+const saveCards=()=>{ try{ localStorage.setItem(CKEY, JSON.stringify(learned)); }catch(e){} };
+
+/* ===== Leer en voz alta ===== */
+const canSpeak = 'speechSynthesis' in window;
+const plain = a => a.replace(/\[([^\]#]+)(#[^\]]*)?\]/g,'$1');
+function speak(t){ if(!canSpeak) return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='es-ES'; u.rate=.9;
+  const v=speechSynthesis.getVoices().find(v=>(v.lang||'').toLowerCase().startsWith('es')); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
+const hush = () => { if(canSpeak) try{ speechSynthesis.cancel(); }catch(e){} };
+
+/* ===== Estado de la ronda ===== */
+let round=null; // {cards:[{q,level,retry}], idx, results:[], exam, bloque}
+const LVL={1:{t:'Nivel 1 · Elegir', how:'Toca un hueco y luego la palabra que va ahí.'},
+           2:{t:'Nivel 2 · Completar', how:'Escribe la palabra que falta. Te damos la primera letra.'},
+           3:{t:'Nivel 3 · Escribir sola', how:'Escribe la respuesta como en la ficha del cole.'}};
+const OK_MSG=['¡Genial! 🎉','¡Eso es! ⭐','¡Muy bien, detective! 🕵️‍♀️','¡La clavaste! 💪','¡Bravo! 🌟','¡Perfecto! 🙌'];
+const BAD_MSG=['¡Casi! Mira cómo lo dice el libro 👀','No pasa nada, la repetimos luego 🔁','Vamos a fijarnos bien en esta 🔍'];
+
+function startRound(bloque){
+  const pool=Q.filter(q=>!bloque || q.b===bloque);
+  let pend=pool.filter(q=>lv(q)<3), review=false;
+  if(!pend.length){ pend=pool; review=true; }
+  pend=shuffle(pend).sort((a,b)=>lv(a)-lv(b)).slice(0,6);
+  round={cards:pend.map(q=>({q, level: review?3:Math.min(lv(q)+1,3)})), idx:0, results:[], exam:false, bloque};
+  showCard();
+}
+function startExam(){
+  round={cards:shuffle(Q).slice(0,8).map(q=>({q, level:3})), idx:0, results:[], exam:true};
+  showCard();
+}
+
+/* ===== Pantalla de inicio ===== */
+function showHome(){
+  round=null; deck=null; hush();
+  const total=Q.length, done=Q.filter(q=>lv(q)===3).length, cards=Q.filter(q=>learned[q.id]).length;
+  $('#app').innerHTML = `
+    <header class="hero">
+      <h1>Detective de la Salud 🕵️‍♀️</h1>
+      <p class="muted">Aprende con las palabras exactas del libro y luego responde como en la ficha del cole.</p>
+      <p class="flow"><span>1. <b>🃏 Tarjetas</b>: aprende</span><span>2. <b>✍️ Practicar</b>: elegir, completar, escribir</span><span>3. <b>📝 Simulacro</b>: como la ficha</span></p>
+      <p><b>${cards} de ${total}</b> tarjetas aprendidas · <b>${done} de ${total}</b> preguntas dominadas ⭐</p>
+    </header>
+    <div class="grid">
+      ${BLOQUES.map(b=>{ const qs=Q.filter(q=>q.b===b.id), d=qs.filter(q=>lv(q)===3).length, l=qs.filter(q=>learned[q.id]).length, all=l===qs.length;
+        return `<section class="bcard" style="--c:${b.c}">
+          <div class="top"><span class="ico" aria-hidden="true">${b.icon}</span><div><h3>${b.nombre}</h3></div></div>
+          <div class="prog">
+            <span>🃏 Tarjetas</span><span class="meter"><i style="width:${l/qs.length*100}%"></i></span><span>${l}/${qs.length}</span>
+            <span>✍️ Dominadas</span><span class="meter"><i style="width:${d/qs.length*100}%"></i></span><span>${d}/${qs.length}</span>
+          </div>
+          <div class="dots" aria-hidden="true">${qs.map(q=>`<span class="dot l${lv(q)}"></span>`).join('')}</div>
+          <div class="bbtns">
+            <button class="btn ${all?'alt':''}" data-cards="${b.id}">${all?'🃏 Repasar tarjetas':l?'🃏 Seguir con las tarjetas':'🃏 Empezar tarjetas'}</button>
+            <button class="btn ${all?'':'alt'}" data-b="${b.id}">✍️ Practicar</button>
+          </div>
+          ${all?'':'<p class="rec">Mejor practicar después de aprender las tarjetas.</p>'}
+        </section>`; }).join('')}
+    </div>
+    <div class="modes">
+      <button class="btn" id="exam">📝 Simulacro de ficha</button>
+      <button class="btn alt" id="all">Practicar todo el tema</button>
+    </div>
+    <div class="legend"><span><i class="dot"></i>Sin empezar</span><span><i class="dot l1"></i>Nivel 1 superado</span>
+      <span><i class="dot l2"></i>Nivel 2 superado</span><span><i class="dot l3"></i>Dominada ⭐</span></div>
+    <div><button class="linkbtn" id="reset">Borrar el progreso</button></div>`;
+  $('#all').onclick=()=>startRound(null);
+  $('#exam').onclick=startExam;
+  document.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startRound(+b.dataset.b));
+  document.querySelectorAll('[data-cards]').forEach(b=>b.onclick=()=>startCards(+b.dataset.cards));
+  $('#reset').onclick=e=>{ const el=e.currentTarget;
+    if(el.dataset.ask){ levels={}; learned={}; save(); saveCards(); showHome(); }
+    else { el.dataset.ask='1'; el.textContent='¿Seguro? Toca otra vez para borrarlo todo'; } };
+  window.scrollTo(0,0);
+}
+
+/* ===== Pregunta ===== */
+function showCard(){
+  const card=round.cards[round.idx], q=card.q, b=BLOQUES[q.b-1], L=card.level;
+  const toks=parse(q.a), blanks=toks.filter(t=>t.t==='b');
+  const steps=round.cards.map((c,i)=>`<i class="${i<round.idx ? (round.results[i]?'done':'miss') : i===round.idx?'now':''}"></i>`).join('');
+  $('#app').innerHTML = `
+    <div class="bar"><button class="linkbtn" id="exit">← Salir</button><div class="steps" aria-label="Pregunta ${round.idx+1} de ${round.cards.length}">${steps}</div></div>
+    <article class="qcard" style="--c:${b.c}">
+      <div class="tags"><span class="tag">${b.icon} Bloque ${b.id}</span><span class="tag lvl n${L}">${round.exam?'Simulacro':LVL[L].t}</span></div>
+      <h2 class="question">${q.q}</h2>
+      <p class="howto">${LVL[L].how}</p>
+      <div id="work"></div>
+      <div class="actions"><button class="btn" id="check">Comprobar</button>
+        ${q.truco && !round.exam ? '<button class="btn alt" id="tip">💡 Truco</button>' : ''}</div>
+      <div id="tipbox"></div>
+    </article>
+    <div id="fb"></div>`;
+  $('#exit').onclick=showHome;
+  if($('#tip')) $('#tip').onclick=()=>{ $('#tipbox').innerHTML=`<p class="truco">💡 ${q.truco}</p>`; $('#tip').remove(); };
+  const work=$('#work');
+  let getAnswer;
+
+  if(L===1){
+    const used=new Set(), filled=blanks.map(()=>null);
+    const others=shuffle(Q.filter(o=>o.b===q.b && o.id!==q.id).flatMap(blanksOf).map(x=>x.ans))
+      .filter((v,i,a)=>a.indexOf(v)===i && !blanks.some(bl=>norm(bl.ans)===norm(v))).slice(0,2);
+    const chips=shuffle([...blanks.map(x=>x.ans), ...others]);
+    let sel=0;
+    const render=()=>{
+      work.innerHTML=`<p class="sentence">${toks.map(t=> t.t==='x' ? esc(t.s) :
+          `<button class="slot ${filled[t.i]===null?'empty':''} ${sel===t.i?'sel':''}" data-i="${t.i}" aria-label="Hueco ${t.i+1}">${filled[t.i]===null?'&nbsp;':esc(chips[filled[t.i]])}</button>`).join('')}</p>
+        <div class="bank">${chips.map((c,k)=>`<button class="chip ${used.has(k)?'used':''}" data-c="${k}">${esc(c)}</button>`).join('')}</div>`;
+      work.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{ const i=+s.dataset.i;
+        if(filled[i]!==null){ used.delete(filled[i]); filled[i]=null; } sel=i; render(); });
+      work.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const k=+c.dataset.c; if(used.has(k)) return;
+        let t = filled[sel]===null ? sel : filled.indexOf(null); if(t<0) return;
+        filled[t]=k; used.add(k); const nx=filled.indexOf(null); sel = nx<0 ? -1 : nx; render(); });
+      $('#check').disabled = filled.includes(null);
+    };
+    render();
+    getAnswer=()=>filled.map(k=>chips[k]);
+  }
+  else if(L===2){
+    const hint=s=>s.split(' ').map(w=>w[0]+'_'.repeat(Math.max(0,w.length-1))).join(' ');
+    work.innerHTML=`<p class="sentence">${toks.map(t=> t.t==='x' ? esc(t.s) :
+      `<input class="gap" id="gap-${q.id}-${t.i}" data-i="${t.i}" placeholder="${esc(hint(t.ans))}" size="${t.ans.length+2}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Hueco ${t.i+1}">`).join('')}</p>`;
+    const ins=[...work.querySelectorAll('.gap')];
+    ins.forEach((inp,k)=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(ins[k+1]) ins[k+1].focus(); else $('#check').click(); } }));
+    getAnswer=()=>ins.map(i=>i.value);
+  }
+  else {
+    const first=toks[0].t==='x' ? toks[0].s.trimEnd()+' ' : '';
+    const starter = round.exam ? '' : first;
+    work.innerHTML=`${starter?`<p class="howto">Te dejamos el principio para arrancar ✏️</p>`:''}
+      <textarea id="ta-${q.id}" aria-label="Tu respuesta" autocapitalize="sentences" spellcheck="false">${esc(starter)}</textarea>`;
+    getAnswer=()=>$('textarea',work).value;
+  }
+
+  $('#check').onclick=()=>{
+    const ans=getAnswer(); let ok, bookHTML, extra='';
+    if(L<3){
+      const res=grade(blanks, ans, L===2);
+      ok=res.every(Boolean);
+      work.querySelectorAll('.slot,.gap').forEach(el=>{ const i=+el.dataset.i; el.classList.add(res[i]?'ok':'bad'); el.disabled=true; el.classList.remove('sel'); });
+      work.querySelectorAll('.chip').forEach(c=>c.disabled=true);
+      bookHTML=toks.map(t=>t.t==='x'?esc(t.s):`<b>${esc(t.ans)}</b>`).join('');
+    } else {
+      const found=blanks.map(bl=>keywordFound(ans, bl.ans));
+      const n=found.filter(Boolean).length;
+      ok = n/blanks.length >= 0.8;
+      $('textarea',work).readOnly=true;
+      bookHTML=toks.map(t=>t.t==='x'?esc(t.s):`<mark class="${found[t.i]?'got':'miss'}">${esc(t.ans)}</mark>`).join('');
+      const missing=blanks.filter((_,i)=>!found[i]).map(x=>x.ans);
+      extra=`<p>Palabras clave: <b>${n} de ${blanks.length}</b>${missing.length?` · Te faltan: <b>${missing.map(esc).join(', ')}</b>`:' · ¡Están todas!'}</p>`;
+    }
+    round.results[round.idx]=ok;
+    if(ok && !round.exam) { levels[q.id]=Math.max(lv(q), L); save(); }
+    if(ok && round.exam)  { levels[q.id]=3; save(); }
+    if(!ok && !round.exam && !card.retry){ round.cards.splice(Math.min(round.idx+3, round.cards.length), 0, {q, level:L, retry:true}); }
+    $('#check').remove(); if($('#tip')) $('#tip').remove();
+    const last = round.idx===round.cards.length-1;
+    $('#fb').innerHTML=`<section class="fb ${ok?'good':'bad'}" aria-live="polite">
+      <p class="msg">${ok?pick(OK_MSG):pick(BAD_MSG)}</p>${extra}
+      <p class="label">Así lo dice el libro</p><p class="book">${bookHTML}</p>
+      <div><button class="btn" id="next">${last?'Ver resultado':'Siguiente →'}</button></div></section>`;
+    $('#next').onclick=()=>{ round.idx++; round.idx<round.cards.length ? showCard() : showEnd(); };
+    $('#fb').scrollIntoView({behavior:'smooth', block:'nearest'});
+  };
+  window.scrollTo(0,0);
+}
+
+/* ===== Tarjetas flash =====
+   Paquetes de 5 tarjetas en el orden del libro.
+   Paso 1: lee la pregunta, gira y lee la respuesta literal ("Me la sé" / "Otra vez").
+   Paso 2: la misma respuesta con las palabras clave tapadas; las dice y las destapa. */
+let deck=null;
+const byId = id => Q.find(q=>q.id===id);
+function startCards(bloque){
+  const qs=Q.filter(q=>q.b===bloque);
+  let pack=qs.filter(q=>!learned[q.id]).slice(0,5);
+  const review=!pack.length;
+  if(review) pack=shuffle(qs).slice(0,5);
+  deck={bloque, pack:pack.map(q=>q.id), queue:pack.map(q=>q.id), phase:'learn', ok:new Set(), review};
+  showFlash();
+}
+function imgsHTML(id){ const l=IMG[id];
+  return l ? `<div class="imgs">${l.map(n=>`<img src="img/${n}.jpg" alt="Ilustración del libro" loading="lazy">`).join('')}</div>` : ''; }
+function showFlash(flipped){
+  hush();
+  const id=deck.queue[0], q=byId(id), b=BLOQUES[q.b-1], toks=parse(q.a), learn=deck.phase==='learn';
+  const steps=deck.pack.map(p=>`<i class="${deck.ok.has(p)?'done':p===id?'now':''}"></i>`).join('');
+  const tag=`<span class="tag">${b.icon} Bloque ${b.id}</span><span class="tag lvl ${learn?'n1':'n2'}">${learn?'Paso 1 · Lee y aprende':'Paso 2 · Palabras tapadas'}</span>`;
+  const sayBtn = canSpeak ? `<button class="say" id="say">🔊 Escuchar</button>` : '';
+  let html;
+  if(learn && !flipped){
+    html=`<article class="fcard front" id="card" style="--c:${b.c}" tabindex="0" role="button" aria-label="Girar la tarjeta">
+      <div class="facehead"><div class="tags">${tag}</div>${sayBtn}</div>
+      <h2 class="question">${q.q}</h2>
+      <p class="tapme">Piensa la respuesta y toca la tarjeta para darle la vuelta 👆</p></article>`;
+  } else if(learn){
+    html=`<article class="fcard flip" style="--c:${b.c}">
+      <div class="facehead"><div class="tags">${tag}</div>${sayBtn}</div>
+      <p class="qsmall">${q.q}</p>
+      <p class="answer">${toks.map(t=>t.t==='x'?esc(t.s):`<mark>${esc(t.ans)}</mark>`).join('')}</p>
+      ${imgsHTML(id)}
+      ${q.truco?`<p class="truco">💡 ${q.truco}</p>`:''}
+    </article>
+    <div class="rate"><button class="btn again" id="again">🔁 Otra vez</button><button class="btn know" id="know">✅ Me la sé</button></div>`;
+  } else {
+    html=`<article class="fcard" style="--c:${b.c}">
+      <div class="tags">${tag}</div>
+      <h2 class="question">${q.q}</h2>
+      <p class="howto">Di en voz alta qué palabra hay debajo de cada recuadro. Luego tócalo para comprobarlo.</p>
+      <p class="answer">${toks.map(t=>t.t==='x'?esc(t.s):`<button class="cover" aria-label="Destapar palabra ${t.i+1}">${esc(t.ans)}</button>`).join('')}</p>
+    </article>
+    <div class="actions" id="uncover"><button class="btn alt" id="openall">Destapar todo</button></div>
+    <div class="rate" id="rate" hidden><button class="btn again" id="again">🔁 Me faltó alguna</button><button class="btn know" id="know">✅ ¡Las dije todas!</button></div>`;
+  }
+  $('#app').innerHTML=`<div class="bar"><button class="linkbtn" id="exit">← Salir</button>
+    <div class="steps" aria-label="${deck.ok.size} de ${deck.pack.length} tarjetas">${steps}</div></div>${html}`;
+  $('#exit').onclick=showHome;
+  if($('#say')) $('#say').onclick=e=>{ e.stopPropagation(); speak(flipped ? plain(q.a) : q.q); };
+  if(learn && !flipped){ const c=$('#card'), go=()=>showFlash(true);
+    c.onclick=go; c.onkeydown=e=>{ if(e.target===c && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); go(); } }; }
+  if(!learn){
+    const covers=[...document.querySelectorAll('.cover')];
+    const check=()=>{ if(covers.every(c=>c.classList.contains('open'))){ $('#uncover').hidden=true; $('#rate').hidden=false; } };
+    covers.forEach(c=>c.onclick=()=>{ c.classList.add('open'); check(); });
+    $('#openall').onclick=()=>{ covers.forEach(c=>c.classList.add('open')); check(); };
+  }
+  if($('#know')) $('#know').onclick=()=>{ deck.ok.add(id); deck.queue.shift(); nextFlash(); };
+  if($('#again')) $('#again').onclick=()=>{ deck.queue.push(deck.queue.shift()); nextFlash(); };
+  window.scrollTo(0,0);
+}
+function nextFlash(){
+  if(deck.queue.length) return showFlash();
+  hush();
+  if(deck.phase==='learn'){
+    deck.phase='check'; deck.queue=shuffle(deck.pack); deck.ok=new Set();
+    $('#app').innerHTML=`<section class="endcard"><p class="big">🧠</p>
+      <h2>¡Ya has leído todas las tarjetas del paquete!</h2>
+      <p>Ahora vamos a tapar las palabras clave. Intenta decirlas tú sola antes de destaparlas.</p>
+      <div class="actions"><button class="btn" id="go">Vamos 💪</button></div></section>`;
+    $('#go').onclick=()=>showFlash();
+    window.scrollTo(0,0); return;
+  }
+  deck.pack.forEach(id=>learned[id]=true); saveCards();
+  const left=Q.filter(q=>q.b===deck.bloque && !learned[q.id]).length;
+  $('#app').innerHTML=`<section class="endcard"><p class="big">⭐⭐⭐</p>
+    <h2>${deck.review?'¡Repaso terminado!':`¡Has aprendido ${deck.pack.length} tarjetas!`}</h2>
+    <p>${left?`Te quedan ${left} tarjetas de este bloque.`:'¡Ya te sabes todas las tarjetas de este bloque! Ahora toca practicar como en la ficha ✍️'}</p>
+    <div class="actions">${left?'<button class="btn" id="more">Siguiente paquete 🃏</button>':''}
+      <button class="btn ${left?'alt':''}" id="prac">✍️ Practicar este bloque</button><button class="btn alt" id="home">Inicio</button></div></section>`;
+  if($('#more')) $('#more').onclick=()=>startCards(deck.bloque);
+  $('#prac').onclick=()=>startRound(deck.bloque);
+  $('#home').onclick=showHome;
+  window.scrollTo(0,0);
+}
+
+/* ===== Final de ronda ===== */
+function showEnd(){
+  const n=round.results.filter(Boolean).length, t=round.results.length;
+  const title = round.exam ? `${n} de ${t}` : `${'⭐'.repeat(Math.max(1,Math.round(n/t*3)))}`;
+  const msg = n===t ? '¡Todas bien! Eres una detective de la salud 🏆' : n/t>=0.6 ? '¡Muy buen trabajo! Las que fallaste volverán a salir 💪' : 'Has practicado un montón. ¡Otra ronda y saldrán mejor! 🌱';
+  $('#app').innerHTML=`<section class="endcard">
+    <p class="big">${title}</p><h2>${msg}</h2>
+    <ul class="rlist">${round.cards.map((c,i)=>`<li><span>${round.results[i]?'✅':'🔁'}</span><span>${c.q.q}</span></li>`).join('')}</ul>
+    <div class="actions"><button class="btn" id="again">${round.exam?'Otro simulacro':'Otra ronda'}</button><button class="btn alt" id="home">Inicio</button></div>
+  </section>`;
+  $('#again').onclick=()=> round.exam ? startExam() : startRound(round.bloque);
+  $('#home').onclick=showHome;
+  window.scrollTo(0,0);
+}
+
+showHome();
+</script>
