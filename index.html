@@ -312,9 +312,6 @@ function showHome(){
   $('#app').innerHTML = `
     <header class="hero">
       <h1>Detective de la Salud 🕵️‍♀️</h1>
-      <p class="muted">Aprende con las palabras exactas del libro y luego responde como en la ficha del cole.</p>
-      <p class="flow"><span>1. <b>🃏 Tarjetas</b>: aprende</span><span>2. <b>✍️ Practicar</b>: elegir, completar, escribir</span><span>3. <b>📝 Simulacro</b>: como la ficha</span></p>
-      <p><b>${cards} de ${total}</b> tarjetas aprendidas · <b>${done} de ${total}</b> preguntas dominadas ⭐</p>
     </header>
     <div class="grid">
       ${BLOQUES.map(b=>{ const qs=Q.filter(q=>q.b===b.id), d=qs.filter(q=>lv(q)===3).length, l=qs.filter(q=>learned[q.id]).length, all=l===qs.length;
@@ -329,15 +326,12 @@ function showHome(){
             <button class="btn ${all?'alt':''}" data-cards="${b.id}">${all?'🃏 Repasar tarjetas':l?'🃏 Seguir con las tarjetas':'🃏 Empezar tarjetas'}</button>
             <button class="btn ${all?'':'alt'}" data-b="${b.id}">✍️ Practicar</button>
           </div>
-          ${all?'':'<p class="rec">Mejor practicar después de aprender las tarjetas.</p>'}
         </section>`; }).join('')}
     </div>
     <div class="modes">
       <button class="btn" id="exam">📝 Simulacro de ficha</button>
       <button class="btn alt" id="all">Practicar todo el tema</button>
     </div>
-    <div class="legend"><span><i class="dot"></i>Sin empezar</span><span><i class="dot l1"></i>Nivel 1 superado</span>
-      <span><i class="dot l2"></i>Nivel 2 superado</span><span><i class="dot l3"></i>Dominada ⭐</span></div>
     <div><button class="linkbtn" id="reset">Borrar el progreso</button></div>`;
   $('#all').onclick=()=>startRound(null);
   $('#exam').onclick=startExam;
