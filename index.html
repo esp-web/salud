@@ -1302,12 +1302,9 @@
          Paso 2: la misma respuesta con las palabras clave tapadas; las dice y las destapa. */
       let deck = null;
       const byId = id => Q.find(q => q.id === id);
-      // El bloque se parte en paquetes seguidos de 5 tarjetas como mucho (repartidos por igual), en el orden del libro.
+      // Todo el bloque es un único paquete, en el orden del libro.
       function packsOf(bloque) {
-        const ids = Q.filter(q => q.b === bloque).map(q => q.id);
-        const n = Math.ceil(ids.length / 5), size = Math.ceil(ids.length / n), out = [];
-        for (let i = 0; i < ids.length; i += size) out.push(ids.slice(i, i + size));
-        return out;
+        return [Q.filter(q => q.b === bloque).map(q => q.id)];
       }
       function startCards(bloque, pi) {
         const packs = packsOf(bloque);
