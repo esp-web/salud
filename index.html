@@ -1138,12 +1138,10 @@
         }).join('')}
     </div>
     <div class="modes">
-      <button class="btn" id="exam">📝 Simulacro de ficha</button>
-      <button class="btn alt" id="all">Practicar todo el tema</button>
+      <button class="btn" id="all">Practicar todo el tema</button>
     </div>
     <div><button class="linkbtn" id="reset">Borrar el progreso</button></div>`;
         $('#all').onclick = () => startRound(null);
-        $('#exam').onclick = startExam;
         document.querySelectorAll('[data-b]').forEach(b => b.onclick = () => startRound(+b.dataset.b));
         document.querySelectorAll('[data-cards]').forEach(b => b.onclick = () => startCards(+b.dataset.cards));
         document.querySelectorAll('[data-map]').forEach(b => b.onclick = () => showMap(+b.dataset.map));
@@ -1601,6 +1599,17 @@
       function showEnd() {
         const n = round.results.filter(Boolean).length, t = round.results.length;
         const title = round.exam ? `${n} de ${t}` : `${'⭐'.repeat(Math.max(1, Math.round(n / t * 3)))}`;
+        // Practicar todo el tema: estrellas, confeti y otra ronda seguida, hasta que pulse Salir.
+        if (!round.exam && round.bloque == null) {
+          const r = round;
+          $('#app').innerHTML = `<div class="bar"><button class="linkbtn" id="exit">← Salir</button></div>
+    <section class="endcard"><p class="big">${title}</p></section>`;
+          $('#exit').onclick = showHome;
+          confetti();
+          setTimeout(() => { if (round === r) startRound(null); }, 1800);
+          window.scrollTo(0, 0);
+          return;
+        }
         $('#app').innerHTML = `<section class="endcard">
     <p class="big">${title}</p>
     <div class="actions"><button class="btn" id="again">${round.exam ? 'Otro simulacro' : 'Otra ronda'}</button><button class="btn alt" id="home">Inicio</button></div>
