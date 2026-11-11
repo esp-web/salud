@@ -1,541 +1,1637 @@
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Detective de la Salud</title>
-<style>:root{color-scheme:light; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Lexend:wght@400;500;600&display=swap">
-<style>
-/* Layout: one centered column sized for a tablet, big touch targets, one task on screen at a time */
-:root{
-  --bg:#EDF3F7; --surface:#FFFFFF; --surface-2:#F5F8FB; --ink:#18263A; --muted:#56677D; --line:#D3DEE8;
-  --b1:#0F9A72; --b2:#8448D6; --b3:#2B76DB; --b4:#E07A12;
-  --ok:#1C9455; --ok-soft:#DDF4E7; --err:#D3402F; --err-soft:#FBE3E0; --warn:#C98A00; --warn-soft:#FFF1CC;
-  --focus:#2B76DB;
-  --f-display:"Baloo 2","Arial Rounded MT Bold",system-ui,sans-serif;
-  --f-body:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --r:18px;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --bg:#0F1823; --surface:#182432; --surface-2:#1F2D3D; --ink:#E7EEF6; --muted:#9FB0C3; --line:#2C3D50;
-    --b1:#34C597; --b2:#B183F2; --b3:#6AA6F5; --b4:#F5A04A;
-    --ok:#44C783; --ok-soft:#173A2A; --err:#F2766A; --err-soft:#43211F; --warn:#F2C14E; --warn-soft:#3D3214;
-    --focus:#6AA6F5;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#0F1823; --surface:#182432; --surface-2:#1F2D3D; --ink:#E7EEF6; --muted:#9FB0C3; --line:#2C3D50;
-  --b1:#34C597; --b2:#B183F2; --b3:#6AA6F5; --b4:#F5A04A;
-  --ok:#44C783; --ok-soft:#173A2A; --err:#F2766A; --err-soft:#43211F; --warn:#F2C14E; --warn-soft:#3D3214;
-  --focus:#6AA6F5;
-}
-*{box-sizing:border-box}
-html,body{min-height:100%}
-body{
-  background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:19px; line-height:1.55;
-  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
-  -webkit-tap-highlight-color:transparent;
-}
-.wrap{max-width:780px; margin:0 auto; padding-block:28px 64px; display:flex; flex-direction:column; gap:24px}
-h1,h2,h3{font-family:var(--f-display); line-height:1.1; margin:0; text-wrap:balance}
-h1{font-size:clamp(2.2rem,6vw,3.2rem); font-weight:800}
-h2{font-size:1.7rem; font-weight:700}
-p{margin:0}
-button{font:inherit; color:inherit; cursor:pointer; touch-action:manipulation}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
-.muted{color:var(--muted)}
 
-/* buttons */
-.btn{border:0; border-radius:999px; padding:14px 26px; min-height:56px; font-weight:600; font-size:1.05rem;
-  background:var(--ink); color:var(--bg); display:inline-flex; align-items:center; justify-content:center; gap:8px}
-.btn.alt{background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 2px var(--line)}
-.btn[disabled]{opacity:.35; cursor:not-allowed}
-.btn:active:not([disabled]){transform:translateY(1px)}
-.linkbtn{background:none; border:0; color:var(--muted); text-decoration:underline; padding:12px; min-height:48px; font-size:.95rem}
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Detective de la Salud</title>
+    <style>
+      :root {
+        color-scheme: light;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px)
+      }
 
-/* home */
-.hero{display:flex; flex-direction:column; gap:10px}
-.hero p{max-width:60ch}
-.modes{display:flex; flex-wrap:wrap; gap:12px}
-.grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px}
-@media (max-width:640px){.grid{grid-template-columns:1fr}}
-.bcard{background:var(--surface); border-radius:var(--r); padding:20px; display:flex; flex-direction:column; gap:12px;
-  border-top:8px solid var(--c)}
-.bcard .top{display:flex; gap:12px; align-items:flex-start}
-.bcard .ico{font-size:2rem; line-height:1}
-.bcard h3{font-size:1.35rem}
-.bcard .num{font-size:.9rem; color:var(--muted); font-variant-numeric:tabular-nums}
-.dots{display:flex; flex-wrap:wrap; gap:6px}
-.dot{width:18px; height:18px; border-radius:50%; box-shadow:inset 0 0 0 2px var(--line); background:transparent}
-.dot.l1{background:color-mix(in srgb, var(--c) 30%, transparent); box-shadow:none}
-.dot.l2{background:color-mix(in srgb, var(--c) 62%, transparent); box-shadow:none}
-.dot.l3{background:var(--c); box-shadow:none}
-.bcard .btn{background:var(--c); color:#fff; align-self:flex-start; margin-top:auto}
-.legend{display:flex; flex-wrap:wrap; gap:16px; font-size:.85rem; color:var(--muted); --c:var(--ink)}
-.legend span{display:inline-flex; gap:6px; align-items:center}
-.legend .dot{width:14px; height:14px}
+      body {
+        margin: 0
+      }
 
-/* play */
-.bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
-.bar .linkbtn{margin-left:-12px}
-.steps{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; margin-left:auto}
-.steps i{width:28px; height:8px; border-radius:4px; background:var(--line)}
-.steps i.done{background:var(--ok)}
-.steps i.miss{background:var(--err)}
-.steps i.now{background:var(--ink)}
-.qcard{background:var(--surface); border-radius:var(--r); padding:clamp(20px,4vw,32px); display:flex; flex-direction:column; gap:20px;
-  border-top:8px solid var(--c)}
-.tags{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-.tag{font-size:.8rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:5px 12px; border-radius:999px;
-  background:var(--surface-2); color:var(--muted)}
-.lvl{color:#fff}
-.lvl.n1{background:var(--ok)} .lvl.n2{background:var(--warn); color:#1d1500} .lvl.n3{background:var(--err)}
-.question{font-family:var(--f-display); font-size:clamp(1.7rem,4.4vw,2.2rem); font-weight:700; line-height:1.15}
-.howto{font-size:.95rem; color:var(--muted)}
-.sentence{font-size:1.25rem; line-height:2.5; background:var(--surface-2); border-radius:14px; padding:16px 20px}
-.slot{display:inline-block; min-width:110px; min-height:46px; padding:4px 14px; margin:0 2px; vertical-align:middle; line-height:1.6;
-  border:0; border-radius:12px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--line), 0 0 0 0 transparent;
-  font-weight:600; font-size:1.1rem}
-.slot.empty{border-bottom:3px dashed var(--muted)}
-.slot.sel{box-shadow:inset 0 0 0 3px var(--c)}
-.slot.ok,.gap.ok{background:var(--ok-soft); box-shadow:inset 0 0 0 2px var(--ok)}
-.slot.bad,.gap.bad{background:var(--err-soft); box-shadow:inset 0 0 0 2px var(--err); text-decoration:line-through}
-.bank{display:flex; flex-wrap:wrap; gap:10px}
-.chip{border:0; border-radius:12px; padding:10px 18px; min-height:52px; font-weight:600; font-size:1.1rem;
-  background:color-mix(in srgb, var(--c) 16%, var(--surface)); box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent)}
-.chip.used{visibility:hidden}
-.gap{font:inherit; font-weight:600; font-size:1.15rem; color:var(--ink); border:0; border-radius:12px; padding:6px 10px; min-height:46px;
-  margin:0 2px; vertical-align:middle; background:var(--surface); box-shadow:inset 0 0 0 2px var(--line); max-width:100%}
-.gap::placeholder{color:var(--muted); letter-spacing:.12em; font-weight:500}
-textarea{width:100%; min-height:190px; font:inherit; font-size:1.2rem; line-height:1.6; color:var(--ink); background:var(--surface-2);
-  border:0; border-radius:14px; padding:16px 18px; box-shadow:inset 0 0 0 2px var(--line); resize:vertical}
-.actions{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
-.truco{background:var(--warn-soft); border-radius:14px; padding:14px 18px; font-size:1.05rem}
-.fb{border-radius:var(--r); padding:20px 22px; display:flex; flex-direction:column; gap:12px}
-.fb.good{background:var(--ok-soft)} .fb.bad{background:var(--err-soft)}
-.fb .msg{font-family:var(--f-display); font-size:1.6rem; font-weight:700; line-height:1.15}
-.fb .book{font-size:1.15rem}
-.fb .book b{font-weight:600}
-.fb .label{font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; font-weight:600; color:var(--muted)}
-mark{border-radius:6px; padding:0 4px; font-weight:600; color:var(--ink)}
-mark.got{background:color-mix(in srgb, var(--ok) 30%, transparent)}
-mark.miss{background:color-mix(in srgb, var(--err) 30%, transparent)}
+      img {
+        max-width: 100%
+      }
 
-/* home: recorrido y progreso por bloque */
-.flow{display:flex; flex-wrap:wrap; gap:8px 14px; font-size:.95rem; color:var(--muted)}
-.flow b{color:var(--ink)}
-.prog{display:grid; grid-template-columns:auto 1fr auto; gap:6px 10px; align-items:center; font-size:.88rem; color:var(--muted); font-variant-numeric:tabular-nums}
-.meter{height:10px; border-radius:5px; background:var(--surface-2); overflow:hidden; box-shadow:inset 0 0 0 1px var(--line)}
-.meter i{display:block; height:100%; background:var(--c)}
-.bbtns{display:flex; flex-wrap:wrap; gap:10px; margin-top:auto}
-.bcard .bbtns .btn{margin-top:0}
-.bcard .btn.alt{background:var(--surface); color:var(--ink); box-shadow:inset 0 0 0 2px var(--line)}
-.rec{font-size:.85rem; color:var(--muted)}
+      [hidden] {
+        display: none !important
+      }
 
-/* tarjetas flash */
-.fcard{background:var(--surface); border-radius:var(--r); padding:clamp(22px,4vw,34px); display:flex; flex-direction:column; gap:18px;
-  border-top:8px solid var(--c); min-height:340px}
-.fcard.front{cursor:pointer}
-@media (prefers-reduced-motion: no-preference){
-  .fcard.flip{animation:flip .34s ease-in-out}
-  @keyframes flip{0%{transform:scaleX(.02)}100%{transform:scaleX(1)}}
-}
-.qsmall{font-family:var(--f-display); font-size:1.25rem; font-weight:700; color:var(--muted); line-height:1.2}
-.answer{font-size:1.3rem; line-height:1.75}
-.answer mark{background:color-mix(in srgb, var(--c) 26%, transparent)}
-.tapme{margin-top:auto; text-align:center; color:var(--muted); font-size:1rem}
-.cover{border:0; font:inherit; font-weight:600; padding:0 10px; min-height:40px; border-radius:8px; vertical-align:baseline;
-  background:var(--c); color:transparent; user-select:none}
-.cover.open{background:color-mix(in srgb, var(--c) 26%, transparent); color:var(--ink)}
-.imgs{display:flex; flex-wrap:wrap; gap:12px; justify-content:center}
-.imgs img{max-width:100%; max-height:300px; width:auto; height:auto; border-radius:12px}
-.rate{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-.rate .btn{width:100%}
-.btn.again{background:var(--warn-soft); color:var(--ink)}
-.btn.know{background:var(--ok); color:#fff}
-.say{border:0; border-radius:999px; min-height:48px; padding:8px 16px; background:var(--surface-2); font-weight:600; font-size:.95rem; align-self:flex-start}
-.facehead{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between}
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Lexend:wght@400;500;600&display=swap">
+    <style>
+      /* Layout: one centered column sized for a tablet, big touch targets, one task on screen at a time */
+      :root {
+        --bg: #EDF3F7;
+        --surface: #FFFFFF;
+        --surface-2: #F5F8FB;
+        --ink: #18263A;
+        --muted: #56677D;
+        --line: #D3DEE8;
+        --b1: #0F9A72;
+        --b2: #8448D6;
+        --b3: #2B76DB;
+        --b4: #E07A12;
+        --b5: #D6455D;
+        --b6: #0E8FA8;
+        --ok: #1C9455;
+        --ok-soft: #DDF4E7;
+        --err: #D3402F;
+        --err-soft: #FBE3E0;
+        --warn: #C98A00;
+        --warn-soft: #FFF1CC;
+        --focus: #2B76DB;
+        --f-display: "Baloo 2", "Arial Rounded MT Bold", system-ui, sans-serif;
+        --f-body: "Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --r: 18px;
+      }
 
-/* end */
-.endcard{background:var(--surface); border-radius:var(--r); padding:28px; display:flex; flex-direction:column; gap:18px; align-items:flex-start}
-.big{font-family:var(--f-display); font-size:clamp(3rem,10vw,4.5rem); font-weight:800; line-height:1; font-variant-numeric:tabular-nums}
-.rlist{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; width:100%}
-.rlist li{display:flex; gap:10px; align-items:baseline; padding:10px 14px; background:var(--surface-2); border-radius:12px}
-@media (prefers-reduced-motion: no-preference){
-  .fb{animation:pop .25s ease-out}
-  @keyframes pop{from{transform:scale(.97)}to{transform:none}}
-}
-</style>
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --bg: #0F1823;
+          --surface: #182432;
+          --surface-2: #1F2D3D;
+          --ink: #E7EEF6;
+          --muted: #9FB0C3;
+          --line: #2C3D50;
+          --b1: #34C597;
+          --b2: #B183F2;
+          --b3: #6AA6F5;
+          --b4: #F5A04A;
+        --b5: #F07A8E;
+        --b6: #4CC3D9;
+          --ok: #44C783;
+          --ok-soft: #173A2A;
+          --err: #F2766A;
+          --err-soft: #43211F;
+          --warn: #F2C14E;
+          --warn-soft: #3D3214;
+          --focus: #6AA6F5;
+        }
+      }
 
-<div class="wrap" id="app"></div>
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0F1823;
+        --surface: #182432;
+        --surface-2: #1F2D3D;
+        --ink: #E7EEF6;
+        --muted: #9FB0C3;
+        --line: #2C3D50;
+        --b1: #34C597;
+        --b2: #B183F2;
+        --b3: #6AA6F5;
+        --b4: #F5A04A;
+        --b5: #F07A8E;
+        --b6: #4CC3D9;
+        --ok: #44C783;
+        --ok-soft: #173A2A;
+        --err: #F2766A;
+        --err-soft: #43211F;
+        --warn: #F2C14E;
+        --warn-soft: #3D3214;
+        --focus: #6AA6F5;
+      }
 
-<script>
-/* ===== Banco de preguntas: respuestas literales de "Texto-para-estudiar".
-   [palabra] = hueco. [palabra#g] = hueco de una lista donde el orden da igual. ===== */
-const BLOQUES = [
-  {id:1, nombre:'La salud y las enfermedades infecciosas', icon:'🦠', c:'var(--b1)'},
-  {id:2, nombre:'Las enfermedades no infecciosas', icon:'🩹', c:'var(--b2)'},
-  {id:3, nombre:'Diagnóstico, tratamiento y prevención', icon:'🩺', c:'var(--b3)'},
-  {id:4, nombre:'Cuidado de la salud y sistema sanitario', icon:'🏥', c:'var(--b4)'},
-];
-const Q = [
-  // BLOQUE 1
-  {id:'1a', b:1, q:'¿Qué es la salud?', a:'La salud es un estado de completo [bienestar] [físico#a], [mental#a] y [social#a].', truco:'Piensa en FÍ-ME-SO: FÍsico 💪, MEntal 🧠, SOcial 🤝'},
-  {id:'1b', b:1, q:'¿Qué tres aspectos de bienestar deben alcanzarse para tener una buena salud?', a:'Bienestar [físico#a], bienestar [mental#a] y bienestar [social#a].', truco:'FÍ-ME-SO: FÍsico, MEntal, SOcial'},
-  {id:'1c', b:1, q:'¿Qué factores influyen más en nuestra salud?', a:'La [edad#a], nuestro [estilo de vida#a], nuestro [entorno#a] y la [salud pública#a].', truco:'Son 4: cuántos años tienes 🎂, cómo vives 🏃, dónde vives 🏡 y la sanidad de tu país 💉'},
-  {id:'1d', b:1, q:'¿Cómo afecta la sanidad pública a nuestra salud? Pon ejemplos.', a:'La sanidad pública del lugar en el que vivimos afecta a nuestra salud. Por ejemplo, el [control sanitario] de los [alimentos] y el [calendario de vacunación].'},
-  {id:'1e', b:1, q:'¿Qué es la enfermedad?', a:'La enfermedad es una [alteración] del [funcionamiento] del [organismo] o de alguna de sus partes debida a una causa [interna#a] o [externa#a], que se mantiene durante un [período de tiempo].', truco:'Algo del cuerpo deja de funcionar bien ⚙️, por dentro o por fuera, y dura un tiempo ⏳'},
-  {id:'1f', b:1, q:'Según las causas que las provocan, ¿qué dos tipos de enfermedades existen?', a:'Las [infecciosas] y las [no infecciosas].'},
-  {id:'1g', b:1, q:'¿Qué son las enfermedades infecciosas?', a:'Son las que están provocadas por los [agentes infecciosos], seres vivos muy [pequeños] que [entran] en nuestro cuerpo y [alteran] su funcionamiento.', truco:'Infecciosa = hay un bichito dentro 🦠'},
-  {id:'1h', b:1, q:'¿Por dónde pueden entrar los agentes infecciosos en nuestro cuerpo?', a:'A través de [heridas#a], por el [aire#a] o por la [boca#a].', truco:'Herida 🩹, aire 💨, boca 👄'},
-  {id:'1i', b:1, q:'¿Qué diferencia hay entre las enfermedades infecciosas contagiosas y las no contagiosas? Pon ejemplos.', a:'Las contagiosas se [transmiten] de unas personas a otras. Por ejemplo, la [gripe#a], la [COVID-19#a] o el [sarampión#a]. Las no contagiosas [no se transmiten] de unas personas a otras. Por ejemplo, el [tétanos].', truco:'Contagiosa = se CONTAGIA, pasa de una persona a otra 🤧➡️🙍'},
-  {id:'1j', b:1, q:'¿Cuáles son los principales agentes infecciosos?', a:'Las [bacterias#a], los [hongos#a], los [protozoos#a] y los [virus#a].', truco:'Bichos Hacen Pupas Variadas: Bacterias, Hongos, Protozoos, Virus'},
-  {id:'1k', b:1, q:'¿Qué enfermedades provocan las bacterias?', a:'Algunas enfermedades provocadas por bacterias son la [tuberculosis#a] o la [salmonelosis#a].', truco:'La salmonelosis viene de comida en mal estado 🥚'},
-  {id:'1l', b:1, q:'¿Qué enfermedades provocan los hongos?', a:'Algunos hongos provocan enfermedades como el [pie de atleta#a] o la [tiña#a].', truco:'Hongos 🍄 → pie de atleta 🦶'},
-  {id:'1m', b:1, q:'¿Qué hacen los protozoos? Pon un ejemplo.', a:'Algunos [parasitan] a los seres humanos. Es el caso de [Plasmodium], que provoca la [malaria].', truco:'Protozoo → Plasmodium → malaria (las tres con P-P-M 🦟)'},
-  {id:'1n', b:1, q:'¿Qué enfermedades causan los virus?', a:'Algunas enfermedades causadas por virus son la [gripe#a], el [resfriado común#a] y la [COVID-19#a].', truco:'Virus = las de los mocos y la fiebre 🤧'},
-  // BLOQUE 2
-  {id:'2a', b:2, q:'¿Qué son las enfermedades no infecciosas?', a:'Son las que están producidas por causas distintas a los [agentes infecciosos]. A menudo tienen [más de una causa] y [no se transmiten] entre personas.', truco:'NO hay bichito, y NO se contagian 🚫🦠'},
-  {id:'2b', b:2, q:'Nombra los tipos de enfermedades no infecciosas.', a:'El [cáncer#a], las [intoxicaciones#a], los [traumatismos#a], las enfermedades [respiratorias#a], las enfermedades [congénitas#a], las enfermedades [cardiovasculares#a], las [alergias#a], las enfermedades [nutricionales#a] y las del [estado de ánimo#a].', truco:'Son 9. Ve repasando el cuerpo: células, venenos, golpes, pulmones, nacimiento, corazón, polen, comida y mente.'},
-  {id:'2c', b:2, q:'¿Qué es el cáncer?', a:'Se produce por un [crecimiento descontrolado] de nuestras propias [células].'},
-  {id:'2d', b:2, q:'¿Cómo se producen las intoxicaciones?', a:'Se producen al [ingerir#a], [respirar#a] o [tocar#a] sustancias [tóxicas].', truco:'Comer 👄, respirar 👃 o tocar ✋ algo tóxico ☠️'},
-  {id:'2e', b:2, q:'¿Qué son los traumatismos?', a:'Lesiones como las [quemaduras#a], [fracturas#a], [esguinces#a], etc.', truco:'Traumatismo = te haces daño: te quemas 🔥, te rompes un hueso 🦴 o te tuerces el tobillo'},
-  {id:'2f', b:2, q:'¿A qué afectan las enfermedades respiratorias y las cardiovasculares?', a:'Las enfermedades respiratorias afectan al aparato [respiratorio]. Las enfermedades cardiovasculares afectan al aparato [circulatorio].', truco:'CARDIO = corazón ❤️ → aparato circulatorio'},
-  {id:'2g', b:2, q:'¿A qué se deben las enfermedades congénitas?', a:'Se deben a [fallos] que se [heredan] o se producen en el [embarazo#a] o [parto#a].', truco:'Congénita = desde que naces 👶'},
-  {id:'2h', b:2, q:'¿A qué se deben las alergias?', a:'Son [reacciones exageradas] de nuestro cuerpo a sustancias como el [polen#a], [pelo de gatos#a], etc.', truco:'El cuerpo se pasa de exagerado con el polen 🌼 o el pelo del gato 🐱'},
-  {id:'2i', b:2, q:'¿Qué son las enfermedades nutricionales?', a:'Están relacionadas con la [mala alimentación].', truco:'Nutrición = comida 🍎🍔'},
-  {id:'2j', b:2, q:'¿Qué son las enfermedades del estado de ánimo o del comportamiento? Pon ejemplos.', a:'Enfermedades que afectan a nuestro [estado de ánimo] o a la manera de [comportarnos#b] y de [pensar#b]. Por ejemplo, la [depresión#a] y la [anorexia#a].'},
-  // BLOQUE 3
-  {id:'3a', b:3, q:'¿Qué es hacer un diagnóstico?', a:'Hacer un diagnóstico es descubrir qué [enfermedad] padece una persona estudiando los [signos#a] y los [síntomas#a] que presenta.', truco:'Diagnóstico = el médico hace de detective 🕵️ con pistas: signos y síntomas'},
-  {id:'3b', b:3, q:'¿Qué son los síntomas? Pon ejemplos.', a:'Los síntomas son las [sensaciones] de malestar y cambio que percibe el [paciente]. Por ejemplo, [dolor#a], [mareo#a], [picor#a].', truco:'SÍntoma = lo que SÍ sientes tú por dentro 😣'},
-  {id:'3c', b:3, q:'¿Qué son los signos? Pon ejemplos.', a:'Los signos son las [manifestaciones] de la enfermedad que se observan tras una [exploración médica] o haciendo [pruebas diagnósticas]. Por ejemplo, [fiebre#a] de 38 ºC, [erupciones#a], [análisis de sangre#a].', truco:'SIgno = lo que Se ve o Se mide desde fuera 🌡️'},
-  {id:'3d', b:3, q:'Clasifica en signos o síntomas: dolor, temperatura de 38º, mareo, picor, habones rojos en la piel, anginas inflamadas, glóbulos blancos elevados.', a:'Síntomas: [dolor#a], [mareo#a], [picor#a]. Signos: [temperatura de 38º#b], [habones rojos#b], [anginas inflamadas#b], [glóbulos blancos#b].', truco:'¿Lo siente ella por dentro? → síntoma. ¿Lo ve o lo mide el médico? → signo'},
-  {id:'3e', b:3, q:'¿Qué son los medicamentos?', a:'Son [sustancias] que [curan] la causa de la enfermedad o [alivian] sus síntomas.'},
-  {id:'3f', b:3, q:'¿Para qué sirven los antibióticos, los analgésicos y los antiinflamatorios?', a:'Los antibióticos, para tratar enfermedades causadas solo por [bacterias]. Los analgésicos, para reducir el [dolor#a] y bajar la [fiebre#a]. Los antiinflamatorios, para reducir la [inflamación].', truco:'antiBIóticos → contra Bacterias (¡con los virus NO funcionan!)'},
-  {id:'3g', b:3, q:'¿A qué corresponde cada definición? a) Alivia el dolor. b) Elimina bacterias que causan infección. c) Previene que se desarrolle una enfermedad.', a:'a) [analgésico]. b) [antibiótico]. c) [vacuna].'},
-  {id:'3h', b:3, q:'¿Qué es la cirugía?', a:'Son técnicas que utilizan [instrumentos] para [curar] partes del cuerpo [dañadas].', truco:'Cirugía = operación en el quirófano 🔪🏥'},
-  {id:'3i', b:3, q:'¿Qué es prevenir una enfermedad? Pon un ejemplo.', a:'Prevenir una enfermedad es [reducir el riesgo] de padecerla. Las [vacunas], por ejemplo, son preparados que [impiden] que desarrollemos una enfermedad.', truco:'Prevenir = que no llegue a pasar 🛡️'},
-  // BLOQUE 4
-  {id:'4a', b:4, q:'Escribe cinco consejos para cuidar tu salud (parte 1).', a:'Realiza una buena higiene [corporal]. No te olvides de las [revisiones] médicas y sigue el calendario de [vacunación]. Evita conductas de [riesgo]. Lávate las [manos] de forma adecuada y frecuente. Lávate los [dientes] después de cada comida.'},
-  {id:'4b', b:4, q:'Escribe cinco consejos para cuidar tu salud (parte 2).', a:'[Desinfecta] tus heridas. Come de forma [saludable]. Cuida tu bienestar [emocional]. Realiza [ejercicio] a diario y evita el [sedentarismo]. [Descansa#a] y [duerme#a].'},
-  {id:'4c', b:4, q:'¿Por qué debemos lavar nuestro cuerpo y cabello a menudo?', a:'Para prevenir [infecciones#a] y [olores desagradables#a].'},
-  {id:'4d', b:4, q:'¿Qué es el sistema sanitario?', a:'Es el conjunto de [personas#a] y [medios materiales#a] de los que dispone un [país] para [prevenir#b], [diagnosticar#b] y [tratar#b] las enfermedades de la población.'},
-  {id:'4e', b:4, q:'¿Cómo se divide nuestro sistema sanitario?', a:'Atención [primaria]: [centros de salud#a] o [ambulatorios#a]. Atención [especializada]: [hospitales].', truco:'PRIMARIA = a donde vas primero (centro de salud). ESPECIALIZADA = el hospital 🏥'},
-];
+      * {
+        box-sizing: border-box
+      }
 
-// Ilustraciones del libro (carpeta img/). Solo se enseñan en el reverso de la tarjeta.
-const IMG={'1d':['vacuna'],'1j':['agentes'],'1k':['bacterias'],'1l':['hongos'],'1m':['protozoos'],'1n':['virus'],
-  '2b':['no-infecciosas'],'2c':['cancer'],'2d':['intoxicaciones'],'2e':['traumatismos'],'2f':['respiratorias','cardiovasculares'],
-  '2g':['congenitas'],'2h':['alergias'],'2i':['nutricionales'],'2j':['animo'],'3i':['vacuna'],'4a':['consejos'],'4b':['consejos'],'4c':['higiene']};
+      html,
+      body {
+        min-height: 100%
+      }
 
-/* ===== Utilidades ===== */
-const $ = (s, el=document) => el.querySelector(s);
-const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
-const pick = a => a[Math.floor(Math.random()*a.length)];
-const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-function lev(a,b){ const m=a.length,n=b.length; if(Math.abs(m-n)>1) return 2; const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
-  for(let j=1;j<=n;j++) d[0][j]=j;
-  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
-  return d[m][n]; }
-function match(given, ans, fuzzy){ const g=norm(given), a=norm(ans); if(!g) return false; if(g===a) return true;
-  return fuzzy && a.length>=5 && lev(g,a)<=1; }
-function parse(a){ const toks=[], re=/\[([^\]]+)\]/g; let m, last=0, i=0;
-  while((m=re.exec(a))){ if(m.index>last) toks.push({t:'x', s:a.slice(last,m.index)});
-    const [ans,g]=m[1].split('#'); toks.push({t:'b', i:i++, ans, g:g||null}); last=re.lastIndex; }
-  if(last<a.length) toks.push({t:'x', s:a.slice(last)}); return toks; }
-const blanksOf = q => parse(q.a).filter(t=>t.t==='b');
-function grade(blanks, given, fuzzy){
-  const res=blanks.map(()=>false), groups={};
-  blanks.forEach((b,k)=>{ if(b.g) (groups[b.g]=groups[b.g]||[]).push(k); else res[k]=match(given[k],b.ans,fuzzy); });
-  for(const g in groups){ const pool=groups[g].map(k=>blanks[k].ans);
-    groups[g].forEach(k=>{ const j=pool.findIndex(p=>p!==null && match(given[k],p,fuzzy)); if(j>=0){res[k]=true; pool[j]=null;} }); }
-  return res; }
-// Nivel 3: ¿aparece cada palabra clave en lo que escribió?
-function keywordFound(text, kw){
-  const words=norm(text).split(' ');
-  let parts=norm(kw).split(' ').filter(w=>w.length>2 || /\d/.test(w)); if(!parts.length) parts=norm(kw).split(' ');
-  return parts.every(w=>{ const stem = w.length>5 ? w.slice(0,-2) : w.length>3 ? w.slice(0,-1) : w;
-    return words.some(t=> t.startsWith(stem) || (w.length>=5 && lev(t,w)<=1)); });
-}
-const esc = s => s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--f-body);
+        font-size: 19px;
+        line-height: 1.55;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        -webkit-tap-highlight-color: transparent;
+      }
 
-/* ===== Progreso (se guarda en esta tablet) ===== */
-const KEY='detectiveSalud.v1';
-let levels={};
-try{ levels=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ levels={}; }
-const save=()=>{ try{ localStorage.setItem(KEY, JSON.stringify(levels)); }catch(e){} };
-const lv = q => levels[q.id]||0;
-const CKEY='detectiveSalud.cards.v1';
-let learned={};
-try{ learned=JSON.parse(localStorage.getItem(CKEY))||{}; }catch(e){ learned={}; }
-const saveCards=()=>{ try{ localStorage.setItem(CKEY, JSON.stringify(learned)); }catch(e){} };
+      .wrap {
+        max-width: 780px;
+        margin: 0 auto;
+        padding-block: 28px 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px
+      }
 
-/* ===== Leer en voz alta ===== */
-const canSpeak = 'speechSynthesis' in window;
-const plain = a => a.replace(/\[([^\]#]+)(#[^\]]*)?\]/g,'$1');
-function speak(t){ if(!canSpeak) return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='es-ES'; u.rate=.9;
-  const v=speechSynthesis.getVoices().find(v=>(v.lang||'').toLowerCase().startsWith('es')); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
-const hush = () => { if(canSpeak) try{ speechSynthesis.cancel(); }catch(e){} };
+      h1,
+      h2,
+      h3 {
+        font-family: var(--f-display);
+        line-height: 1.1;
+        margin: 0;
+        text-wrap: balance
+      }
 
-/* ===== Estado de la ronda ===== */
-let round=null; // {cards:[{q,level,retry}], idx, results:[], exam, bloque}
-const LVL={1:{t:'Nivel 1 · Elegir', how:'Toca un hueco y luego la palabra que va ahí.'},
-           2:{t:'Nivel 2 · Completar', how:'Escribe la palabra que falta. Te damos la primera letra.'},
-           3:{t:'Nivel 3 · Escribir sola', how:'Escribe la respuesta como en la ficha del cole.'}};
-const OK_MSG=['¡Genial! 🎉','¡Eso es! ⭐','¡Muy bien, detective! 🕵️‍♀️','¡La clavaste! 💪','¡Bravo! 🌟','¡Perfecto! 🙌'];
-const BAD_MSG=['¡Casi! Mira cómo lo dice el libro 👀','No pasa nada, la repetimos luego 🔁','Vamos a fijarnos bien en esta 🔍'];
+      h1 {
+        font-size: clamp(2.2rem, 6vw, 3.2rem);
+        font-weight: 800
+      }
 
-function startRound(bloque){
-  const pool=Q.filter(q=>!bloque || q.b===bloque);
-  let pend=pool.filter(q=>lv(q)<3), review=false;
-  if(!pend.length){ pend=pool; review=true; }
-  pend=shuffle(pend).sort((a,b)=>lv(a)-lv(b)).slice(0,6);
-  round={cards:pend.map(q=>({q, level: review?3:Math.min(lv(q)+1,3)})), idx:0, results:[], exam:false, bloque};
-  showCard();
-}
-function startExam(){
-  round={cards:shuffle(Q).slice(0,8).map(q=>({q, level:3})), idx:0, results:[], exam:true};
-  showCard();
-}
+      h2 {
+        font-size: 1.7rem;
+        font-weight: 700
+      }
 
-/* ===== Pantalla de inicio ===== */
-function showHome(){
-  round=null; deck=null; hush();
-  const total=Q.length, done=Q.filter(q=>lv(q)===3).length, cards=Q.filter(q=>learned[q.id]).length;
-  $('#app').innerHTML = `
+      p {
+        margin: 0
+      }
+
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        touch-action: manipulation
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px
+      }
+
+      .muted {
+        color: var(--muted)
+      }
+
+      /* buttons */
+      .btn {
+        border: 0;
+        border-radius: 999px;
+        padding: 14px 26px;
+        min-height: 56px;
+        font-weight: 600;
+        font-size: 1.05rem;
+        background: var(--ink);
+        color: var(--bg);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px
+      }
+
+      .btn.alt {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: inset 0 0 0 2px var(--line)
+      }
+
+      .btn[disabled] {
+        opacity: .35;
+        cursor: not-allowed
+      }
+
+      .btn:active:not([disabled]) {
+        transform: translateY(1px)
+      }
+
+      .linkbtn {
+        background: none;
+        border: 0;
+        color: var(--muted);
+        text-decoration: underline;
+        padding: 12px;
+        min-height: 48px;
+        font-size: .95rem
+      }
+
+      /* home */
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 10px
+      }
+
+      .hero p {
+        max-width: 60ch
+      }
+
+      .modes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px
+      }
+
+      @media (max-width:640px) {
+        .grid {
+          grid-template-columns: 1fr
+        }
+      }
+
+      .bcard {
+        background: var(--surface);
+        border-radius: var(--r);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        border-top: 8px solid var(--c)
+      }
+
+      /* mapa mental */
+      .mmap { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px 56px; align-items: center; }
+      .mlines { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+      .mcol { display: flex; flex-direction: column; gap: 14px; position: relative; }
+      .mcenter { position: relative; background: var(--c); color: #fff; font-family: var(--f-display); font-weight: 800; font-size: 1.45rem;
+        line-height: 1.15; text-align: center; padding: 22px 18px; border-radius: 28px; max-width: 200px; text-wrap: balance;
+        display: flex; flex-direction: column; align-items: center; gap: 6px; box-shadow: 0 6px 18px color-mix(in srgb, var(--c) 35%, transparent); }
+      .mico { font-size: 2.2rem; }
+      .mnode { position: relative; display: flex; gap: 10px; align-items: center; text-align: left; border: 3px solid var(--m); border-radius: 18px;
+        padding: 10px 12px; background: color-mix(in srgb, var(--m) 13%, var(--surface)); transition: opacity .2s, transform .2s; }
+      .mnode img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; flex: none; }
+      .mtxt { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+      .mt { font-family: var(--f-display); font-weight: 700; font-size: 1.2rem; line-height: 1.15; color: var(--ink); }
+      .mk { display: flex; flex-wrap: wrap; gap: 5px; }
+      .mk span { font-size: .85rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--m) 26%, var(--surface)); color: var(--ink); }
+      .mnode { flex-wrap: wrap; cursor: pointer; }
+      .msay { display: block; margin-top: 8px; }
+      .mtxt { flex: 1; }
+      .mt { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
+      .mexp { flex-basis: 100%; display: none; font-size: 1rem; line-height: 1.45; color: var(--ink); background: var(--surface); border-radius: 10px; padding: 8px 10px; }
+      .mnode.on .mexp { display: block; }
+      .mmap.focus .mnode:not(.on) { opacity: .3; }
+      .mmap.focus .mnode.on { transform: scale(1.04); box-shadow: 0 8px 22px color-mix(in srgb, var(--m) 40%, transparent); }
+      @media (max-width: 700px) {
+        .mmap { grid-template-columns: 1fr; padding-left: 26px; }
+        .mcenter { order: -1; max-width: none; margin-left: -26px; }
+      }
+      @media (prefers-reduced-motion: reduce) { .mnode { transition: none; } }
+
+      /* actividad de arrastrar a cajas */
+      .pool { display: flex; flex-wrap: wrap; gap: 10px; min-height: 52px; }
+      .bank .chip { touch-action: none; }
+      .bank.dragmode .chip.used { display: none; }
+      .pgrid { display: grid; grid-template-columns: 1fr auto; gap: 12px 16px; align-items: center; background: var(--surface-2);
+        border-radius: 14px; padding: 16px 20px; font-size: 1.2rem; }
+      .pgrid .slot { min-width: 170px; margin: 0; }
+      @media (max-width: 560px) { .pgrid { grid-template-columns: 1fr; } }
+      .schip { touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+      .schip.sel { box-shadow: inset 0 0 0 3px var(--c); }
+      .schip.dragging { opacity: .3; }
+      .schip.ok { background: var(--ok-soft); box-shadow: inset 0 0 0 2px var(--ok); cursor: default; }
+      .schip.bad { background: var(--err-soft); box-shadow: inset 0 0 0 2px var(--err); }
+      .ghost { position: fixed; z-index: 50; pointer-events: none; margin: 0; box-shadow: 0 10px 24px rgba(0, 0, 0, .22); }
+      .sboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      @media (max-width: 560px) { .sboxes { grid-template-columns: 1fr; } }
+      .sbox { border: 3px dashed var(--line); border-radius: 16px; padding: 14px; min-height: 220px; display: flex; flex-direction: column; gap: 10px; }
+      .sbox.over { border-color: var(--c); background: color-mix(in srgb, var(--c) 10%, transparent); }
+      .sbox h3 { font-size: 1.4rem; }
+      .sitems { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+
+      /* actividad de unir parejas */
+      .pairs { display: grid; grid-template-columns: 3fr 2fr; gap: 14px; align-items: start; }
+      .pcol { display: flex; flex-direction: column; gap: 10px; }
+      .pitem { text-align: left; position: relative; }
+      .pitem.sel { box-shadow: inset 0 0 0 3px var(--c); background: color-mix(in srgb, var(--c) 28%, var(--surface)); }
+      .pitem.ok { background: var(--ok-soft); box-shadow: inset 0 0 0 2px var(--ok); cursor: default; color: var(--ink); }
+      .pitem.ok::after { content: attr(data-n); position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%;
+        background: var(--ok); color: #fff; font-size: .8rem; display: grid; place-items: center; }
+      .pitem.bad { background: var(--err-soft); box-shadow: inset 0 0 0 2px var(--err); }
+
+      .bphoto {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        border-radius: 12px;
+        display: block;
+      }
+
+      .bcard .top {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start
+      }
+
+      .bcard .ico {
+        font-size: 2rem;
+        line-height: 1
+      }
+
+      .bcard h3 {
+        font-size: 1.35rem
+      }
+
+      .bcard .num {
+        font-size: .9rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums
+      }
+
+      .dots {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px
+      }
+
+      .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 2px var(--line);
+        background: transparent
+      }
+
+      .dot.l1 {
+        background: color-mix(in srgb, var(--c) 30%, transparent);
+        box-shadow: none
+      }
+
+      .dot.l2 {
+        background: color-mix(in srgb, var(--c) 62%, transparent);
+        box-shadow: none
+      }
+
+      .dot.l3 {
+        background: var(--c);
+        box-shadow: none
+      }
+
+      .bcard .btn {
+        background: var(--c);
+        color: #fff;
+        align-self: flex-start;
+        margin-top: auto
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: .85rem;
+        color: var(--muted);
+        --c: var(--ink)
+      }
+
+      .legend span {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center
+      }
+
+      .legend .dot {
+        width: 14px;
+        height: 14px
+      }
+
+      /* play */
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap
+      }
+
+      .bar .linkbtn {
+        margin-left: -12px
+      }
+
+      .steps {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+        margin-left: auto
+      }
+
+      .steps i {
+        width: 28px;
+        height: 8px;
+        border-radius: 4px;
+        background: var(--line)
+      }
+
+      .steps i.done {
+        background: var(--ok)
+      }
+
+      .steps i.miss {
+        background: var(--err)
+      }
+
+      .steps i.now {
+        background: var(--ink)
+      }
+
+      .qcard {
+        background: var(--surface);
+        border-radius: var(--r);
+        padding: clamp(20px, 4vw, 32px);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border-top: 8px solid var(--c)
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center
+      }
+
+      .tag {
+        font-size: .8rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: var(--surface-2);
+        color: var(--muted)
+      }
+
+      .lvl {
+        color: #fff
+      }
+
+      .lvl.n1 {
+        background: var(--ok)
+      }
+
+      .lvl.n2 {
+        background: var(--warn);
+        color: #1d1500
+      }
+
+      .lvl.n3 {
+        background: var(--err)
+      }
+
+      .question {
+        font-family: var(--f-display);
+        font-size: clamp(1.7rem, 4.4vw, 2.2rem);
+        font-weight: 700;
+        line-height: 1.15
+      }
+
+      .howto {
+        font-size: .95rem;
+        color: var(--muted)
+      }
+
+      .sentence {
+        white-space: pre-line;
+        font-size: 1.25rem;
+        line-height: 2.5;
+        background: var(--surface-2);
+        border-radius: 14px;
+        padding: 16px 20px
+      }
+
+      .slot {
+        display: inline-block;
+        min-width: 110px;
+        min-height: 46px;
+        padding: 4px 14px;
+        margin: 0 2px;
+        vertical-align: middle;
+        line-height: 1.6;
+        border: 0;
+        border-radius: 12px;
+        background: var(--surface);
+        box-shadow: inset 0 0 0 2px var(--line), 0 0 0 0 transparent;
+        font-weight: 600;
+        font-size: 1.1rem
+      }
+
+      .slot.empty {
+        border-bottom: 3px dashed var(--muted)
+      }
+
+      .slot.sel {
+        box-shadow: inset 0 0 0 3px var(--c)
+      }
+
+      .slot.ok,
+      .gap.ok {
+        background: var(--ok-soft);
+        box-shadow: inset 0 0 0 2px var(--ok)
+      }
+
+      .slot.bad,
+      .gap.bad {
+        background: var(--err-soft);
+        box-shadow: inset 0 0 0 2px var(--err);
+        text-decoration: line-through
+      }
+
+      .bank {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px
+      }
+
+      .chip {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 18px;
+        min-height: 52px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        background: color-mix(in srgb, var(--c) 16%, var(--surface));
+        box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent)
+      }
+
+      .chip.used {
+        visibility: hidden
+      }
+
+      .gap {
+        font: inherit;
+        font-weight: 600;
+        font-size: 1.15rem;
+        color: var(--ink);
+        border: 0;
+        border-radius: 12px;
+        padding: 6px 10px;
+        min-height: 46px;
+        margin: 0 2px;
+        vertical-align: middle;
+        background: var(--surface);
+        box-shadow: inset 0 0 0 2px var(--line);
+        max-width: 100%
+      }
+
+      .gap::placeholder {
+        color: var(--muted);
+        letter-spacing: .12em;
+        font-weight: 500
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 190px;
+        font: inherit;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--surface-2);
+        border: 0;
+        border-radius: 14px;
+        padding: 16px 18px;
+        box-shadow: inset 0 0 0 2px var(--line);
+        resize: vertical
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center
+      }
+
+.bubble {
+        position: relative; margin-top: 8px; background: var(--surface-2); border: 2px solid var(--c);
+        border-radius: 18px; padding: 14px 18px; font-size: 1.1rem;
+      }
+      .bubble::before {
+        content: ""; position: absolute; top: -10px; left: 32px; width: 16px; height: 16px; background: var(--surface-2);
+        border-left: 2px solid var(--c); border-top: 2px solid var(--c); transform: rotate(45deg);
+      }
+      .truco {
+        background: var(--warn-soft);
+        border-radius: 14px;
+        padding: 14px 18px;
+        font-size: 1.05rem
+      }
+
+      .fb {
+        border-radius: var(--r);
+        padding: 20px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px
+      }
+
+      .fb.good {
+        background: var(--ok-soft)
+      }
+
+      .fb.bad {
+        background: var(--err-soft)
+      }
+
+      .fb .msg {
+        font-family: var(--f-display);
+        font-size: 1.6rem;
+        font-weight: 700;
+        line-height: 1.15
+      }
+
+      .fb .book {
+        font-size: 1.15rem
+      }
+
+      .fb .book b {
+        font-weight: 600
+      }
+
+      .fb .label {
+        font-size: .8rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-weight: 600;
+        color: var(--muted)
+      }
+
+      mark {
+        border-radius: 6px;
+        padding: 0 4px;
+        font-weight: 600;
+        color: var(--ink)
+      }
+
+      mark.got {
+        background: color-mix(in srgb, var(--ok) 30%, transparent)
+      }
+
+      mark.miss {
+        background: color-mix(in srgb, var(--err) 30%, transparent)
+      }
+
+      /* home: recorrido y progreso por bloque */
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        font-size: .95rem;
+        color: var(--muted)
+      }
+
+      .flow b {
+        color: var(--ink)
+      }
+
+      .prog {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 6px 10px;
+        align-items: center;
+        font-size: .88rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums
+      }
+
+      .meter {
+        height: 10px;
+        border-radius: 5px;
+        background: var(--surface-2);
+        overflow: hidden;
+        box-shadow: inset 0 0 0 1px var(--line)
+      }
+
+      .meter i {
+        display: block;
+        height: 100%;
+        background: var(--c)
+      }
+
+      .bbtns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: auto
+      }
+
+      .bcard .bbtns .btn {
+        margin-top: 0;
+        flex: 1 1 auto;
+        padding: 8px 8px;
+        min-height: 46px;
+        font-size: .88rem;
+        gap: 4px;
+        white-space: nowrap
+      }
+
+      .bcard .btn.alt {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: inset 0 0 0 2px var(--c)
+      }
+
+      .rec {
+        font-size: .85rem;
+        color: var(--muted)
+      }
+
+      /* tarjetas flash */
+      .fcard {
+        background: var(--surface);
+        border-radius: var(--r);
+        padding: clamp(22px, 4vw, 34px);
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        border-top: 8px solid var(--c);
+        min-height: 340px
+      }
+
+      .flipbtn {
+        margin-top: auto;
+        align-self: center
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .fcard.flip {
+          animation: flip .34s ease-in-out
+        }
+
+        @keyframes flip {
+          0% {
+            transform: scaleX(.02)
+          }
+
+          100% {
+            transform: scaleX(1)
+          }
+        }
+      }
+
+      .qsmall {
+        font-family: var(--f-display);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--muted);
+        line-height: 1.2
+      }
+
+      .answer {
+        white-space: pre-line;
+        font-size: 1.3rem;
+        line-height: 1.75
+      }
+
+      .answer mark {
+        background: color-mix(in srgb, var(--c) 26%, transparent)
+      }
+
+      .tapme {
+        margin-top: auto;
+        text-align: center;
+        color: var(--muted);
+        font-size: 1rem
+      }
+
+      .cover {
+        border: 0;
+        font: inherit;
+        font-weight: 600;
+        padding: 0 10px;
+        min-height: 40px;
+        border-radius: 8px;
+        vertical-align: baseline;
+        background: var(--c);
+        color: transparent;
+        user-select: none
+      }
+
+      .cover.open {
+        background: color-mix(in srgb, var(--c) 26%, transparent);
+        color: var(--ink)
+      }
+
+      .imgs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center
+      }
+
+      .imgs img {
+        max-width: 100%;
+        max-height: 300px;
+        width: auto;
+        height: auto;
+        border-radius: 12px
+      }
+
+      .rate {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px
+      }
+
+      .rate .btn {
+        width: 100%
+      }
+
+      .rate.one {
+        grid-template-columns: 1fr
+      }
+
+      .btn.again {
+        background: var(--warn-soft);
+        color: var(--ink)
+      }
+
+      .btn.know {
+        background: var(--ok);
+        color: #fff
+      }
+
+      .say {
+        border: 0;
+        border-radius: 999px;
+        min-height: 48px;
+        padding: 8px 16px;
+        background: var(--surface-2);
+        font-weight: 600;
+        font-size: .95rem;
+        align-self: flex-start
+      }
+
+      .facehead {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between
+      }
+
+      /* end */
+      .endcard {
+        background: var(--surface);
+        border-radius: var(--r);
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        align-items: flex-start
+      }
+
+      .big {
+        font-family: var(--f-display);
+        font-size: clamp(3rem, 10vw, 4.5rem);
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums
+      }
+
+      .rlist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%
+      }
+
+      .rlist li {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        padding: 10px 14px;
+        background: var(--surface-2);
+        border-radius: 12px
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .fb {
+          animation: pop .25s ease-out
+        }
+
+        @keyframes pop {
+          from {
+            transform: scale(.97)
+          }
+
+          to {
+            transform: none
+          }
+        }
+      }
+
+    </style>
+
+    <div class="wrap" id="app"></div>
+
+    <script>
+      /* ===== Banco de preguntas: respuestas literales de "Texto-para-estudiar".
+         [palabra] = hueco. [palabra#g] = hueco de una lista donde el orden da igual. ===== */
+      const BLOQUES = [
+        { id: 1, nombre: 'La salud y la enfermedad', icon: '❤️', c: 'var(--b1)' },
+        { id: 2, nombre: 'Las enfermedades infecciosas', icon: '🦠', c: 'var(--b5)' },
+        { id: 3, nombre: 'Los principales agentes infecciosos', icon: '🔬', c: 'var(--b6)' },
+        { id: 4, nombre: 'Las enfermedades no infecciosas', icon: '🩹', c: 'var(--b2)' },
+        { id: 5, nombre: '¿Cómo nos enfrentamos a las enfermedades?', icon: '🩺', c: 'var(--b3)' },
+        { id: 6, nombre: 'Cuidado de la salud', icon: '🏥', c: 'var(--b4)' },
+      ];
+      const Q = [
+        // BLOQUE 1
+        { id: '1a', b: 1, q: '¿Qué es la salud?', a: 'La salud es un estado de completo [bienestar] [físico#a], [mental#a] y [social#a].' },
+        { id: '1c', b: 1, q: '¿Qué factores influyen más en nuestra salud?', a: 'Los factores que más influyen en nuestra salud son: la [edad#a], nuestro [estilo de vida#a], nuestro [entorno#a] y la [salud pública#a].' },
+        { id: '1e', b: 1, q: '¿Qué es la enfermedad?', a: 'La enfermedad es una [alteración] del [funcionamiento] del [organismo] o de alguna de sus partes debida a una causa [interna#a] o [externa#a], que se mantiene durante un [período de tiempo].' },
+        { id: '1f', b: 1, q: 'Según las causas que las provocan, ¿qué tipos de enfermedades existen?', a: 'Según las causas que las provocan, existen dos tipos de enfermedades: las [infecciosas] y las [no infecciosas].' },
+        { id: '4d', b: 1, q: '¿Qué es el sistema sanitario?', a: 'Es el conjunto de [personas#a] y [medios materiales#a] de los que dispone un [país] para [prevenir#b], [diagnosticar#b] y [tratar#b] las enfermedades de la población.' },
+        { id: '4e', b: 1, q: '¿Cómo se divide nuestro sistema sanitario?', a: 'Atención [primaria]: [centros de salud#a] o [ambulatorios#a]. Atención [especializada]: [hospitales].', truco: 'PRIMARIA = a donde vas primero (centro de salud). ESPECIALIZADA = el hospital 🏥' },
+        // BLOQUE 2
+        { id: 'i1', b: 2, q: '¿Qué son las enfermedades infecciosas?', a: 'Las enfermedades infecciosas son las que están provocadas por los [agentes infecciosos].' },
+        { id: 'i2', b: 2, q: '¿Qué son los agentes infecciosos?', a: 'Los agentes infecciosos son [seres vivos] muy [pequeños] que [entran] en nuestro cuerpo y [alteran] su funcionamiento.' },
+        { id: 'i3', b: 2, q: '¿Por dónde pueden entrar los agentes infecciosos en nuestro cuerpo?', a: 'Los agentes infecciosos pueden entrar en nuestro cuerpo a través de [heridas#a], por el [aire#a] o por la [boca#a].' },
+        { id: 'i4a', b: 2, q: '¿Qué son las enfermedades contagiosas? Pon ejemplos.', a: 'Las [contagiosas]: se [transmiten] de unas personas a otras. Por ejemplo, la [gripe#a], la [COVID-19#a] o el [sarampión#a].' },
+        { id: 'i4b', b: 2, q: '¿Qué son las enfermedades no contagiosas? Pon un ejemplo.', a: 'Las [no contagiosas]: [no se transmiten] de unas personas a otras. Por ejemplo, el [tétanos].' },
+        // BLOQUE 3
+        { id: 'g1', b: 3, q: '¿Qué enfermedades provocan las bacterias?', a: 'Algunas enfermedades provocadas por bacterias son la [tuberculosis#a] o la [salmonelosis#a].' },
+        { id: 'g2', b: 3, q: '¿Qué enfermedades provocan los hongos?', a: 'Algunos hongos provocan enfermedades como el [pie de atleta#a] o la [tiña#a].' },
+        { id: 'g3', b: 3, q: '¿Qué hacen los protozoos? Pon un ejemplo.', a: 'Algunos [parasitan] a los seres humanos. Es el caso de [Plasmodium], que provoca la [malaria].' },
+        { id: 'g4', b: 3, q: '¿Qué enfermedades causan los virus?', a: 'Algunas enfermedades causadas por virus son la [gripe#a], el [resfriado común#a] y la [COVID-19#a].' },
+        // BLOQUE 2
+        { id: 'n0', b: 4, q: '¿Qué son las enfermedades no infecciosas?', a: 'Las enfermedades no infecciosas son las que están producidas por causas distintas a los [agentes infecciosos]. A menudo tienen [más de una causa] y [no se transmiten] entre personas.' },
+        { id: 'n1', b: 4, q: '¿Qué es el cáncer?', a: 'Se produce por un [crecimiento descontrolado] de nuestras propias [células].' },
+        { id: 'n2', b: 4, q: '¿Cómo se producen las intoxicaciones?', a: 'Se producen al [ingerir#a], [respirar#a] o [tocar#a] sustancias [tóxicas].' },
+        { id: 'n3', b: 4, q: '¿Qué son los traumatismos?', a: 'Lesiones como las [quemaduras#a], [fracturas#a], [esguinces#a], etc.' },
+        { id: 'n4', b: 4, q: '¿A qué afectan las enfermedades respiratorias?', a: 'Afectan al aparato [respiratorio].' },
+        { id: 'n5', b: 4, q: '¿A qué se deben las enfermedades congénitas?', a: 'Se deben a [fallos] que se [heredan] o se producen en el [embarazo#a] o [parto#a].' },
+        { id: 'n6', b: 4, q: '¿A qué afectan las enfermedades cardiovasculares?', a: 'Afectan al aparato [circulatorio].' },
+        { id: 'n7', b: 4, q: '¿Qué son las alergias?', a: '[Reacciones exageradas] de nuestro cuerpo a sustancias como el [polen#a], [pelo de gatos#a], etc.' },
+        { id: 'n8', b: 4, q: '¿Qué son las enfermedades nutricionales?', a: 'Están relacionadas con la [mala alimentación].' },
+        { id: 'n9', b: 4, q: '¿Qué son las enfermedades del estado de ánimo o del comportamiento?', a: 'Enfermedades que afectan a nuestro [estado de ánimo] o a la manera de [comportarnos#b] y de [pensar#b].' },
+        { id: 'n9e', b: 4, q: 'Pon ejemplos de enfermedades del estado de ánimo o del comportamiento.', a: 'Por ejemplo, la [depresión#a] y la [anorexia#a].' },
+        // BLOQUE 3
+        { id: 'd1', b: 5, q: '¿Qué es un diagnóstico?', a: 'Un diagnóstico es [descubrir] qué [enfermedad] padece una persona estudiando los [signos#a] y los [síntomas#a] que presenta.' },
+        { id: 'd2', b: 5, q: '¿Qué son los síntomas? Pon ejemplos.', a: 'Los síntomas son las [sensaciones] de malestar y cambio que percibe el [paciente] (ej. [dolor#a], [mareo#a], [picor#a]).', mas: 'Otros síntomas: dolor de cabeza, dolor de tripa, cansancio, ganas de vomitar, escalofríos, picor de garganta.' },
+        { id: 'd3', b: 5, q: '¿Qué son los signos?', a: 'Los signos son las [manifestaciones] de la enfermedad que se observan tras una [exploración médica] o haciendo [pruebas diagnósticas].' },
+        { id: 'd3e', b: 5, q: 'Pon ejemplos de signos.', a: 'Por ejemplo: [fiebre#a] de 38 ºC, [erupciones#a], [análisis de sangre#a].', mas: 'Otros signos: granos o manchas en la piel, garganta roja, hinchazón, ojos rojos, tensión alta, un hueso roto en una radiografía.' },
+        { id: 'd4', b: 5, q: 'Clasifica las siguientes situaciones según correspondan a signos o síntomas de una enfermedad: dolor, temperatura de 38 º, mareo, picor, presencia de habones rojos en la piel, anginas inflamadas, elevado número de glóbulos blancos en la sangre.', a: 'Síntomas: [dolor#a], [mareo#a], [picor#a].\nSignos: [temperatura de 38 º#b], presencia de [habones rojos#b] en la piel, [anginas inflamadas#b], elevado número de [glóbulos blancos#b] en la sangre.',
+          sort: { 'Síntomas': ['dolor', 'mareo', 'picor'], 'Signos': ['temperatura de 38 º', 'presencia de habones rojos en la piel', 'anginas inflamadas', 'elevado número de glóbulos blancos en la sangre'] } },
+        { id: 'd5', b: 5, q: '¿Qué son los medicamentos?', a: 'Algunas enfermedades se tratan con medicamentos, que son [sustancias] que [curan] la causa de la enfermedad o [alivian] sus síntomas.' },
+        { id: 'd6', b: 5, q: '¿Para qué sirven los antibióticos?', a: 'Los antibióticos: para el tratamiento de enfermedades causadas solo por [bacterias].' },
+        { id: 'd7a', b: 5, q: '¿Para qué sirven los analgésicos?', a: 'Los medicamentos para tratar el [malestar], entre los que están los analgésicos, para reducir el [dolor#a] y bajar la [fiebre#a].' },
+        { id: 'd7b', b: 5, q: '¿Para qué sirven los antiinflamatorios?', a: 'Los antiinflamatorios, empleados para reducir la [inflamación].' },
+        { id: 'd8', b: 5, q: '¿A qué tipo de medicamento corresponden estas definiciones? a) Alivia el dolor. b) Elimina bacterias que causan infección. c) Previene que se desarrolle una enfermedad.', a: 'a) [Analgésico].\nb) [Antibiótico].\nc) [Vacuna].',
+          pairs: [['a) Alivia el dolor.', 'Analgésico'], ['b) Elimina bacterias que causan infección.', 'Antibiótico'], ['c) Previene que se desarrolle una enfermedad.', 'Vacuna']] },
+        { id: 'd9', b: 5, q: '¿Qué es la cirugía?', a: 'Otras enfermedades necesitan tratamientos de cirugía, que son [técnicas] que utilizan [instrumentos] para [curar] partes del cuerpo [dañadas].' },
+        { id: 'd10', b: 5, q: '¿Qué es prevenir una enfermedad?', a: 'Prevenir una enfermedad es [reducir el riesgo] de padecerla.' },
+        { id: 'd11', b: 5, q: '¿Qué son las vacunas?', a: 'Las vacunas, por ejemplo, son [preparados] que [impiden] que desarrollemos una [enfermedad].' },
+        // BLOQUE 4
+        { id: 'c1', b: 6, q: '¿Cómo cuidamos nuestra higiene corporal?', a: 'Higiene corporal: Realiza una buena [higiene corporal]. Lava tu [cuerpo#c] y tu [cabello#c] a menudo para prevenir [infecciones#a] y [olores desagradables#a].' },
+        { id: 'c2', b: 6, q: '¿Qué debes hacer con las revisiones médicas y las vacunas?', a: 'Revisiones y vacunas: No te olvides de las [revisiones médicas] y sigue el [calendario de vacunación].' },
+        { id: 'c3', b: 6, q: '¿Qué es la prevención de conductas de riesgo?', a: 'Prevención de conductas de riesgo: [Evita] conductas que pongan en [riesgo] tu salud.' },
+        { id: 'c4', b: 6, q: '¿Cómo debes lavarte las manos?', a: 'Higiene de manos: Lávate las [manos] de forma [adecuada#a] y [frecuente#a].' },
+        { id: 'c5', b: 6, q: '¿Cuándo debes lavarte los dientes?', a: 'Salud bucodental: Lávate los [dientes] después de [cada comida].' },
+        { id: 'c6', b: 6, q: '¿Qué debes hacer con las heridas?', a: 'Desinfección de heridas: [Desinfecta] tus [heridas].' },
+        { id: 'c7', b: 6, q: '¿Cómo debes comer?', a: 'Alimentación saludable: Come de forma [saludable].' },
+        { id: 'c8', b: 6, q: '¿Qué consejo debes seguir sobre el bienestar emocional?', a: 'Bienestar emocional: Cuida tu [bienestar emocional].' },
+        { id: 'c9', b: 6, q: '¿Qué consejo debes seguir sobre el ejercicio físico?', a: 'Ejercicio físico: Realiza [ejercicio] a [diario] y evita el [sedentarismo].' },
+        { id: 'c10', b: 6, q: '¿Qué consejo debes seguir sobre el descanso y el sueño?', a: 'Descanso y sueño: [Descansa#a] y [duerme#a].' },
+      ];
+
+      // Ilustraciones del libro (carpeta img/). Solo se enseñan en el reverso de la tarjeta.
+      const IMG = {
+        'g1': ['bacterias'], 'g2': ['hongos'], 'g3': ['protozoos'], 'g4': ['virus'],
+        'n1': ['cancer'], 'n2': ['intoxicaciones'], 'n3': ['traumatismos'], 'n4': ['respiratorias'], 'n5': ['congenitas'],
+        'n6': ['cardiovasculares'], 'n7': ['alergias'], 'n8': ['nutricionales'], 'n9': ['animo'],
+        'c1': ['c-higiene'], 'c2': ['c-revisiones'], 'c3': ['c-riesgo'], 'c4': ['c-manos'], 'c5': ['c-dientes'], 'c6': ['c-heridas'], 'c7': ['c-alimentacion'], 'c8': ['c-emocional'], 'c9': ['c-ejercicio'], 'c10': ['c-descanso']
+      };
+
+      /* ===== Utilidades ===== */
+      const $ = (s, el = document) => el.querySelector(s);
+      const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; };
+      const pick = a => a[Math.floor(Math.random() * a.length)];
+      const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+      function lev(a, b) {
+        const m = a.length, n = b.length; if (Math.abs(m - n) > 1) return 2; const d = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
+        for (let j = 1; j <= n; j++) d[0][j] = j;
+        for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        return d[m][n];
+      }
+      function match(given, ans, fuzzy) {
+        const g = norm(given), a = norm(ans); if (!g) return false; if (g === a) return true;
+        return fuzzy && a.length >= 5 && lev(g, a) <= 1;
+      }
+      function parse(a) {
+        const toks = [], re = /\[([^\]]+)\]/g; let m, last = 0, i = 0;
+        while ((m = re.exec(a))) {
+          if (m.index > last) toks.push({ t: 'x', s: a.slice(last, m.index) });
+          const [ans, g] = m[1].split('#'); toks.push({ t: 'b', i: i++, ans, g: g || null }); last = re.lastIndex;
+        }
+        if (last < a.length) toks.push({ t: 'x', s: a.slice(last) }); return toks;
+      }
+      const blanksOf = q => parse(q.a).filter(t => t.t === 'b');
+      function grade(blanks, given, fuzzy) {
+        const res = blanks.map(() => false), groups = {};
+        blanks.forEach((b, k) => { if (b.g) (groups[b.g] = groups[b.g] || []).push(k); else res[k] = match(given[k], b.ans, fuzzy); });
+        for (const g in groups) {
+          const pool = groups[g].map(k => blanks[k].ans);
+          groups[g].forEach(k => { const j = pool.findIndex(p => p !== null && match(given[k], p, fuzzy)); if (j >= 0) { res[k] = true; pool[j] = null; } });
+        }
+        return res;
+      }
+      // Nivel 3: ¿aparece cada palabra clave en lo que escribió?
+      function keywordFound(text, kw) {
+        const words = norm(text).split(' ');
+        let parts = norm(kw).split(' ').filter(w => w.length > 2 || /\d/.test(w)); if (!parts.length) parts = norm(kw).split(' ');
+        return parts.every(w => {
+          const stem = w.length > 5 ? w.slice(0, -2) : w.length > 3 ? w.slice(0, -1) : w;
+          return words.some(t => t.startsWith(stem) || (w.length >= 5 && lev(t, w) <= 1));
+        });
+      }
+      const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+      /* ===== Progreso (se guarda en esta tablet) ===== */
+      const KEY = 'detectiveSalud.v1';
+      let levels = {};
+      try { levels = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { levels = {}; }
+      const save = () => { try { localStorage.setItem(KEY, JSON.stringify(levels)); } catch (e) { } };
+      const lv = q => levels[q.id] || 0;
+      const CKEY = 'detectiveSalud.cards.v1';
+      let learned = {};
+      try { learned = JSON.parse(localStorage.getItem(CKEY)) || {}; } catch (e) { learned = {}; }
+      const saveCards = () => { try { localStorage.setItem(CKEY, JSON.stringify(learned)); } catch (e) { } };
+
+      /* ===== Leer en voz alta ===== */
+      const canSpeak = 'speechSynthesis' in window;
+      const plain = a => a.replace(/\[([^\]#]+)(#[^\]]*)?\]/g, '$1');
+      function speak(t) {
+        if (!canSpeak) return; try {
+          speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'es-ES'; u.rate = .9;
+          const v = speechSynthesis.getVoices().find(v => (v.lang || '').toLowerCase().startsWith('es')); if (v) u.voice = v; speechSynthesis.speak(u);
+        } catch (e) { }
+      }
+      const hush = () => { if (canSpeak) try { speechSynthesis.cancel(); } catch (e) { } };
+
+      /* ===== Estado de la ronda ===== */
+      let round = null; // {cards:[{q,level,retry}], idx, results:[], exam, bloque}
+      const LVL = {
+        1: { t: 'Nivel 1 · Elegir', how: 'Toca un hueco y luego la palabra que va ahí.' },
+        2: { t: 'Nivel 2 · Completar', how: 'Escribe la palabra que falta. Te damos la primera letra.' },
+        3: { t: 'Nivel 3 · Escribir sola', how: 'Escribe la respuesta como en la ficha del cole.' }
+      };
+      const OK_MSG = ['¡Genial! 🎉', '¡Eso es! ⭐', '¡Muy bien, detective! 🕵️‍♀️', '¡La clavaste! 💪', '¡Bravo! 🌟', '¡Perfecto! 🙌'];
+      const BAD_MSG = ['¡Casi! Mira cómo lo dice el libro 👀', 'No pasa nada, la repetimos luego 🔁', 'Vamos a fijarnos bien en esta 🔍'];
+
+      function startRound(bloque) {
+        const pool = Q.filter(q => !bloque || q.b === bloque);
+        let pend = pool.filter(q => lv(q) < 3), review = false;
+        if (!pend.length) { pend = pool; review = true; }
+        pend = shuffle(pend).sort((a, b) => lv(a) - lv(b)).slice(0, 6);
+        round = { cards: pend.map(q => ({ q, level: review ? 3 : Math.min(lv(q) + 1, 3) })), idx: 0, results: [], exam: false, bloque };
+        showCard();
+      }
+      function startExam() {
+        round = { cards: shuffle(Q).slice(0, 8).map(q => ({ q, level: 3 })), idx: 0, results: [], exam: true };
+        showCard();
+      }
+
+      /* ===== Pantalla de inicio ===== */
+      function showHome() {
+        round = null; deck = null; hush();
+        const total = Q.length, done = Q.filter(q => lv(q) === 3).length, cards = Q.filter(q => learned[q.id]).length;
+        $('#app').innerHTML = `
     <header class="hero">
       <h1>Detective de la Salud 🕵️‍♀️</h1>
     </header>
     <div class="grid">
-      ${BLOQUES.map(b=>{ const qs=Q.filter(q=>q.b===b.id), d=qs.filter(q=>lv(q)===3).length, l=qs.filter(q=>learned[q.id]).length, all=l===qs.length;
-        return `<section class="bcard" style="--c:${b.c}">
+      ${BLOQUES.map(b => {
+          const qs = Q.filter(q => q.b === b.id), d = qs.filter(q => lv(q) === 3).length, l = qs.filter(q => learned[q.id]).length, all = l === qs.length;
+          return `<section class="bcard" style="--c:${b.c}">
+          <img class="bphoto" src="img/bloque-${b.id}.jpg" alt="" loading="lazy">
           <div class="top"><span class="ico" aria-hidden="true">${b.icon}</span><div><h3>${b.nombre}</h3></div></div>
-          <div class="prog">
-            <span>🃏 Tarjetas</span><span class="meter"><i style="width:${l/qs.length*100}%"></i></span><span>${l}/${qs.length}</span>
-            <span>✍️ Dominadas</span><span class="meter"><i style="width:${d/qs.length*100}%"></i></span><span>${d}/${qs.length}</span>
-          </div>
-          <div class="dots" aria-hidden="true">${qs.map(q=>`<span class="dot l${lv(q)}"></span>`).join('')}</div>
           <div class="bbtns">
-            <button class="btn ${all?'alt':''}" data-cards="${b.id}">${all?'🃏 Repasar tarjetas':l?'🃏 Seguir con las tarjetas':'🃏 Tarjetas'}</button>
-            <button class="btn ${all?'':'alt'}" data-b="${b.id}">✍️ Practicar</button>
+            <button class="btn" data-map="${b.id}">🧠 Mapa</button>
+            <button class="btn alt" data-cards="${b.id}">🃏 Aprender</button>
+            <button class="btn alt" data-b="${b.id}">✍️ Practicar</button>
           </div>
-        </section>`; }).join('')}
+        </section>`;
+        }).join('')}
     </div>
     <div class="modes">
       <button class="btn" id="exam">📝 Simulacro de ficha</button>
       <button class="btn alt" id="all">Practicar todo el tema</button>
     </div>
     <div><button class="linkbtn" id="reset">Borrar el progreso</button></div>`;
-  $('#all').onclick=()=>startRound(null);
-  $('#exam').onclick=startExam;
-  document.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startRound(+b.dataset.b));
-  document.querySelectorAll('[data-cards]').forEach(b=>b.onclick=()=>startCards(+b.dataset.cards));
-  $('#reset').onclick=e=>{ const el=e.currentTarget;
-    if(el.dataset.ask){ levels={}; learned={}; save(); saveCards(); showHome(); }
-    else { el.dataset.ask='1'; el.textContent='¿Seguro? Toca otra vez para borrarlo todo'; } };
-  window.scrollTo(0,0);
-}
+        $('#all').onclick = () => startRound(null);
+        $('#exam').onclick = startExam;
+        document.querySelectorAll('[data-b]').forEach(b => b.onclick = () => startRound(+b.dataset.b));
+        document.querySelectorAll('[data-cards]').forEach(b => b.onclick = () => startCards(+b.dataset.cards));
+        document.querySelectorAll('[data-map]').forEach(b => b.onclick = () => showMap(+b.dataset.map));
+        $('#reset').onclick = e => {
+          const el = e.currentTarget;
+          if (el.dataset.ask) { levels = {}; learned = {}; save(); saveCards(); showHome(); }
+          else { el.dataset.ask = '1'; el.textContent = '¿Seguro? Toca otra vez para borrarlo todo'; }
+        };
+        window.scrollTo(0, 0);
+      }
 
-/* ===== Pregunta ===== */
-function showCard(){
-  const card=round.cards[round.idx], q=card.q, b=BLOQUES[q.b-1], L=card.level;
-  const toks=parse(q.a), blanks=toks.filter(t=>t.t==='b');
-  const steps=round.cards.map((c,i)=>`<i class="${i<round.idx ? (round.results[i]?'done':'miss') : i===round.idx?'now':''}"></i>`).join('');
-  $('#app').innerHTML = `
-    <div class="bar"><button class="linkbtn" id="exit">← Salir</button><div class="steps" aria-label="Pregunta ${round.idx+1} de ${round.cards.length}">${steps}</div></div>
+      /* ===== Pregunta ===== */
+      function showCard() {
+        hush();
+        const card = round.cards[round.idx], q = card.q, b = BLOQUES[q.b - 1], L = card.level;
+        // Práctica: siempre arrastrar cada palabra a su hueco. El simulacro sigue siendo escribir.
+        const drag = !round.exam, U = drag ? 1 : 3;
+        // Unir parejas: cada definición en su línea, con su hueco al lado.
+        const toks = q.pairs ? q.pairs.flatMap((p, i) => [{ t: 'x', s: (i ? '\n' : '') + p[0] + '  →  ' }, { t: 'b', i, ans: p[1], g: null }]) : parse(q.a);
+        const blanks = toks.filter(t => t.t === 'b');
+        const steps = round.cards.map((c, i) => `<i class="${i < round.idx ? (round.results[i] ? 'done' : 'miss') : i === round.idx ? 'now' : ''}"></i>`).join('');
+        $('#app').innerHTML = `
+    <div class="bar"><button class="linkbtn" id="exit">← Salir</button><div class="steps" aria-label="Pregunta ${round.idx + 1} de ${round.cards.length}">${steps}</div></div>
     <article class="qcard" style="--c:${b.c}">
-      <div class="tags"><span class="tag">${b.icon} Bloque ${b.id}</span><span class="tag lvl n${L}">${round.exam?'Simulacro':LVL[L].t}</span></div>
-      <h2 class="question">${q.q}</h2>
-      <p class="howto">${LVL[L].how}</p>
+      <div class="facehead"><div class="tags"><span class="tag">${b.icon} Bloque ${b.id}</span>${round.exam ? '<span class="tag lvl n3">Simulacro</span>' : ''}</div>${canSpeak ? '<button class="say" id="say">🔊 Escuchar</button>' : ''}</div>
+      <h2 class="question">${q.pairs ? q.q.split('?')[0] + '?' : q.q}</h2>
+      ${drag ? '' : `<p class="howto">${LVL[U].how}</p>`}
       <div id="work"></div>
-      <div class="actions"><button class="btn" id="check">Comprobar</button>
+      <div class="actions"><button class="btn" id="check" ${drag ? 'hidden' : ''}>Comprobar</button>
         ${q.truco && !round.exam ? '<button class="btn alt" id="tip">💡 Truco</button>' : ''}</div>
       <div id="tipbox"></div>
     </article>
     <div id="fb"></div>`;
-  $('#exit').onclick=showHome;
-  if($('#tip')) $('#tip').onclick=()=>{ $('#tipbox').innerHTML=`<p class="truco">💡 ${q.truco}</p>`; $('#tip').remove(); };
-  const work=$('#work');
-  let getAnswer;
+        $('#exit').onclick = showHome;
+        if ($('#say')) $('#say').onclick = () => speak(q.q);
+        if ($('#tip')) $('#tip').onclick = () => { $('#tipbox').innerHTML = `<p class="truco">💡 ${q.truco}</p>`; $('#tip').remove(); };
+        const work = $('#work');
+        let getAnswer, mistakes = 0;
 
-  if(L===1){
-    const used=new Set(), filled=blanks.map(()=>null);
-    const others=shuffle(Q.filter(o=>o.b===q.b && o.id!==q.id).flatMap(blanksOf).map(x=>x.ans))
-      .filter((v,i,a)=>a.indexOf(v)===i && !blanks.some(bl=>norm(bl.ans)===norm(v))).slice(0,2);
-    const chips=shuffle([...blanks.map(x=>x.ans), ...others]);
-    let sel=0;
-    const render=()=>{
-      work.innerHTML=`<p class="sentence">${toks.map(t=> t.t==='x' ? esc(t.s) :
-          `<button class="slot ${filled[t.i]===null?'empty':''} ${sel===t.i?'sel':''}" data-i="${t.i}" aria-label="Hueco ${t.i+1}">${filled[t.i]===null?'&nbsp;':esc(chips[filled[t.i]])}</button>`).join('')}</p>
-        <div class="bank">${chips.map((c,k)=>`<button class="chip ${used.has(k)?'used':''}" data-c="${k}">${esc(c)}</button>`).join('')}</div>`;
-      work.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{ const i=+s.dataset.i;
-        if(filled[i]!==null){ used.delete(filled[i]); filled[i]=null; } sel=i; render(); });
-      work.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const k=+c.dataset.c; if(used.has(k)) return;
-        let t = filled[sel]===null ? sel : filled.indexOf(null); if(t<0) return;
-        filled[t]=k; used.add(k); const nx=filled.indexOf(null); sel = nx<0 ? -1 : nx; render(); });
-      $('#check').disabled = filled.includes(null);
-    };
-    render();
-    getAnswer=()=>filled.map(k=>chips[k]);
-  }
-  else if(L===2){
-    const hint=s=>s.split(' ').map(w=>w[0]+'_'.repeat(Math.max(0,w.length-1))).join(' ');
-    work.innerHTML=`<p class="sentence">${toks.map(t=> t.t==='x' ? esc(t.s) :
-      `<input class="gap" id="gap-${q.id}-${t.i}" data-i="${t.i}" placeholder="${esc(hint(t.ans))}" size="${t.ans.length+2}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Hueco ${t.i+1}">`).join('')}</p>`;
-    const ins=[...work.querySelectorAll('.gap')];
-    ins.forEach((inp,k)=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(ins[k+1]) ins[k+1].focus(); else $('#check').click(); } }));
-    getAnswer=()=>ins.map(i=>i.value);
-  }
-  else {
-    const first=toks[0].t==='x' ? toks[0].s.trimEnd()+' ' : '';
-    const starter = round.exam ? '' : first;
-    work.innerHTML=`${starter?`<p class="howto">Te dejamos el principio para arrancar ✏️</p>`:''}
+        if (U === 1) {
+          // Cada palabra se comprueba al soltarla: si va en ese hueco se queda en verde; si no, el hueco parpadea en rojo y la palabra vuelve abajo.
+          // Palabras de relleno: solo si hay que colocar una única palabra (entonces se añade otra que no va).
+          const used = new Set(), filled = blanks.map(() => null);
+          const nOthers = (q.sort || q.pairs || blanks.length > 1) ? 0 : 1;
+          const others = [...shuffle(Q.filter(o => o.b === q.b && o.id !== q.id)), ...shuffle(Q.filter(o => o.b !== q.b))]
+            .flatMap(blanksOf).map(x => x.ans)
+            .filter((v, i, a) => a.indexOf(v) === i && !blanks.some(bl => norm(bl.ans) === norm(v))).slice(0, nOthers);
+          const chips = shuffle([...blanks.map(x => x.ans), ...others]);
+          let sel = 0;
+          // En una lista (mismo grupo) vale cualquier palabra del grupo que aún no esté colocada.
+          const accepts = (i, word) => {
+            const bl = blanks[i];
+            if (!bl.g) return match(word, bl.ans, false);
+            const left = blanks.filter(x => x.g === bl.g).map(x => x.ans);
+            blanks.forEach((x, j) => { if (x.g === bl.g && filled[j] !== null) { const p = left.findIndex(a => match(chips[filled[j]], a, false)); if (p >= 0) left.splice(p, 1); } });
+            return left.some(a => match(word, a, false));
+          };
+          const put = (k, i) => {
+            if (i < 0 || filled[i] !== null || used.has(k)) return;
+            if (accepts(i, chips[k])) {
+              filled[i] = k; used.add(k); sel = filled.indexOf(null); render();
+              if (sel < 0) setTimeout(() => $('#check').click(), 400);
+            } else {
+              mistakes++;
+              const el = work.querySelector(`.slot[data-i="${i}"]`);
+              if (el) { el.classList.add('bad'); setTimeout(() => el.classList.remove('bad'), 600); }
+            }
+          };
+          const render = () => {
+            const slot = t => `<button class="slot ${filled[t.i] === null ? 'empty' : 'ok'} ${sel === t.i ? 'sel' : ''}" data-i="${t.i}" ${filled[t.i] !== null ? 'disabled' : ''} aria-label="Hueco ${t.i + 1}">${filled[t.i] === null ? '&nbsp;' : esc(chips[filled[t.i]])}</button>`;
+            work.innerHTML = `${q.pairs
+              ? `<div class="pgrid">${blanks.map(t => `<span class="pdef">${esc(q.pairs[t.i][0])}</span>${slot(t)}`).join('')}</div>`
+              : `<p class="sentence">${toks.map(t => t.t === 'x' ? esc(t.s) : slot(t)).join('')}</p>`}
+        <div class="bank dragmode">${chips.map((c, k) => `<button class="chip ${used.has(k) ? 'used' : ''}" data-c="${k}">${esc(c)}</button>`).join('')}</div>`;
+            work.querySelectorAll('.slot').forEach(s => s.onclick = () => { sel = +s.dataset.i; render(); });
+            work.querySelectorAll('.bank .chip').forEach(c => {
+              c.onclick = () => put(+c.dataset.c, sel);
+              if (!used.has(+c.dataset.c)) c.addEventListener('pointerdown', e => dragChip(e, c));
+            });
+          };
+          // Arrastrar una palabra hasta un hueco.
+          const dragChip = (e, c) => {
+            e.preventDefault();
+            const k = +c.dataset.c, r = c.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top, sx = e.clientX, sy = e.clientY;
+            let ghost = null, over = null;
+            const slotAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest('.slot.empty'); };
+            const mv = ev => {
+              if (!ghost) {
+                if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
+                ghost = c.cloneNode(true); ghost.classList.add('ghost'); ghost.style.width = r.width + 'px';
+                document.body.appendChild(ghost); c.classList.add('dragging');
+              }
+              ghost.style.left = (ev.clientX - ox) + 'px'; ghost.style.top = (ev.clientY - oy) + 'px';
+              const s = slotAt(ev.clientX, ev.clientY);
+              if (s !== over) { if (over) over.classList.remove('sel'); over = s; if (over) over.classList.add('sel'); }
+            };
+            const up = () => {
+              document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
+              if (!ghost) return; // un toque normal lo gestiona onclick
+              ghost.remove(); c.classList.remove('dragging');
+              if (over) { over.classList.remove('sel'); put(k, +over.dataset.i); }
+            };
+            document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+          };
+          render();
+          getAnswer = () => filled.map(k => chips[k]);
+        }
+        else if (U === 2) {
+          const hint = s => s.split(' ').map(w => w[0] + '_'.repeat(Math.max(0, w.length - 1))).join(' ');
+          work.innerHTML = `<p class="sentence">${toks.map(t => t.t === 'x' ? esc(t.s) :
+            `<input class="gap" id="gap-${q.id}-${t.i}" data-i="${t.i}" placeholder="${esc(hint(t.ans))}" size="${t.ans.length + 2}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Hueco ${t.i + 1}">`).join('')}</p>`;
+          const ins = [...work.querySelectorAll('.gap')];
+          ins.forEach((inp, k) => inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); if (ins[k + 1]) ins[k + 1].focus(); else $('#check').click(); } }));
+          getAnswer = () => ins.map(i => i.value);
+        }
+        else {
+          const first = toks[0].t === 'x' ? toks[0].s.trimEnd() + ' ' : '';
+          const starter = round.exam ? '' : first;
+          work.innerHTML = `${starter ? `<p class="howto">Te dejamos el principio para arrancar ✏️</p>` : ''}
       <textarea id="ta-${q.id}" aria-label="Tu respuesta" autocapitalize="sentences" spellcheck="false">${esc(starter)}</textarea>`;
-    getAnswer=()=>$('textarea',work).value;
-  }
+          getAnswer = () => $('textarea', work).value;
+        }
 
-  $('#check').onclick=()=>{
-    const ans=getAnswer(); let ok, bookHTML, extra='';
-    if(L<3){
-      const res=grade(blanks, ans, L===2);
-      ok=res.every(Boolean);
-      work.querySelectorAll('.slot,.gap').forEach(el=>{ const i=+el.dataset.i; el.classList.add(res[i]?'ok':'bad'); el.disabled=true; el.classList.remove('sel'); });
-      work.querySelectorAll('.chip').forEach(c=>c.disabled=true);
-      bookHTML=toks.map(t=>t.t==='x'?esc(t.s):`<b>${esc(t.ans)}</b>`).join('');
-    } else {
-      const found=blanks.map(bl=>keywordFound(ans, bl.ans));
-      const n=found.filter(Boolean).length;
-      ok = n/blanks.length >= 0.8;
-      $('textarea',work).readOnly=true;
-      bookHTML=toks.map(t=>t.t==='x'?esc(t.s):`<mark class="${found[t.i]?'got':'miss'}">${esc(t.ans)}</mark>`).join('');
-      const missing=blanks.filter((_,i)=>!found[i]).map(x=>x.ans);
-      extra=`<p>Palabras clave: <b>${n} de ${blanks.length}</b>${missing.length?` · Te faltan: <b>${missing.map(esc).join(', ')}</b>`:' · ¡Están todas!'}</p>`;
-    }
-    round.results[round.idx]=ok;
-    if(ok && !round.exam) { levels[q.id]=Math.max(lv(q), L); save(); }
-    if(ok && round.exam)  { levels[q.id]=3; save(); }
-    if(!ok && !round.exam && !card.retry){ round.cards.splice(Math.min(round.idx+3, round.cards.length), 0, {q, level:L, retry:true}); }
-    $('#check').remove(); if($('#tip')) $('#tip').remove();
-    const last = round.idx===round.cards.length-1;
-    $('#fb').innerHTML=`<section class="fb ${ok?'good':'bad'}" aria-live="polite">
-      <p class="msg">${ok?pick(OK_MSG):pick(BAD_MSG)}</p>${extra}
+        $('#check').onclick = () => {
+          const ans = getAnswer(); let ok, bookHTML, extra = '';
+          if (U < 3) {
+            const res = grade(blanks, ans, U === 2);
+            ok = res.every(Boolean) && !(drag && mistakes > 0);
+            work.querySelectorAll('.slot,.gap').forEach(el => { const i = +el.dataset.i; el.classList.add(res[i] ? 'ok' : 'bad'); el.disabled = true; el.classList.remove('sel'); });
+            work.querySelectorAll('.chip').forEach(c => c.disabled = true);
+            bookHTML = toks.map(t => t.t === 'x' ? esc(t.s) : `<b>${esc(t.ans)}</b>`).join('');
+          } else {
+            const found = blanks.map(bl => keywordFound(ans, bl.ans));
+            const n = found.filter(Boolean).length;
+            ok = n / blanks.length >= 0.8;
+            $('textarea', work).readOnly = true;
+            bookHTML = toks.map(t => t.t === 'x' ? esc(t.s) : `<mark class="${found[t.i] ? 'got' : 'miss'}">${esc(t.ans)}</mark>`).join('');
+            const missing = blanks.filter((_, i) => !found[i]).map(x => x.ans);
+            extra = `<p>Palabras clave: <b>${n} de ${blanks.length}</b>${missing.length ? ` · Te faltan: <b>${missing.map(esc).join(', ')}</b>` : ' · ¡Están todas!'}</p>`;
+          }
+          round.results[round.idx] = ok;
+          if (ok && !round.exam) { levels[q.id] = Math.max(lv(q), L); save(); }
+          if (ok && round.exam) { levels[q.id] = 3; save(); }
+          if (!ok && !round.exam && !card.retry) { round.cards.splice(Math.min(round.idx + 3, round.cards.length), 0, { q, level: L, retry: true }); }
+          $('#check').remove(); if ($('#tip')) $('#tip').remove();
+          const last = round.idx === round.cards.length - 1;
+          $('#fb').innerHTML = `<section class="fb ${ok ? 'good' : 'bad'}" aria-live="polite">
+      <p class="msg">${ok ? pick(OK_MSG) : pick(BAD_MSG)}</p>${extra}
       <p class="label">Así lo dice el libro</p><p class="book">${bookHTML}</p>
-      <div><button class="btn" id="next">${last?'Ver resultado':'Siguiente →'}</button></div></section>`;
-    $('#next').onclick=()=>{ round.idx++; round.idx<round.cards.length ? showCard() : showEnd(); };
-    $('#fb').scrollIntoView({behavior:'smooth', block:'nearest'});
-  };
-  window.scrollTo(0,0);
-}
+      <div><button class="btn" id="next">${last ? 'Ver resultado' : 'Siguiente →'}</button></div></section>`;
+          $('#next').onclick = () => { round.idx++; round.idx < round.cards.length ? showCard() : showEnd(); };
+          $('#fb').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+        window.scrollTo(0, 0);
+      }
 
-/* ===== Tarjetas flash =====
-   Paquetes de 5 tarjetas en el orden del libro.
-   Paso 1: lee la pregunta, gira y lee la respuesta literal ("Me la sé" / "Otra vez").
-   Paso 2: la misma respuesta con las palabras clave tapadas; las dice y las destapa. */
-let deck=null;
-const byId = id => Q.find(q=>q.id===id);
-function startCards(bloque){
-  const qs=Q.filter(q=>q.b===bloque);
-  let pack=qs.filter(q=>!learned[q.id]).slice(0,5);
-  const review=!pack.length;
-  if(review) pack=shuffle(qs).slice(0,5);
-  deck={bloque, pack:pack.map(q=>q.id), queue:pack.map(q=>q.id), phase:'learn', ok:new Set(), review};
-  showFlash();
-}
-function imgsHTML(id){ const l=IMG[id];
-  return l ? `<div class="imgs">${l.map(n=>`<img src="img/${n}.jpg" alt="Ilustración del libro" loading="lazy">`).join('')}</div>` : ''; }
-function showFlash(flipped){
-  hush();
-  const id=deck.queue[0], q=byId(id), b=BLOQUES[q.b-1], toks=parse(q.a), learn=deck.phase==='learn';
-  const steps=deck.pack.map(p=>`<i class="${deck.ok.has(p)?'done':p===id?'now':''}"></i>`).join('');
-  const tag=`<span class="tag">${b.icon} Bloque ${b.id}</span><span class="tag lvl ${learn?'n1':'n2'}">${learn?'Paso 1 · Lee y aprende':'Paso 2 · Palabras tapadas'}</span>`;
-  const sayBtn = canSpeak ? `<button class="say" id="say">🔊 Escuchar</button>` : '';
-  let html;
-  if(learn && !flipped){
-    html=`<article class="fcard front" id="card" style="--c:${b.c}" tabindex="0" role="button" aria-label="Girar la tarjeta">
+      /* ===== Tarjetas flash =====
+         Paquetes de 5 tarjetas en el orden del libro.
+         Paso 1: lee la pregunta, gira y lee la respuesta literal ("Me la sé" / "Otra vez").
+         Paso 2: la misma respuesta con las palabras clave tapadas; las dice y las destapa. */
+      let deck = null;
+      const byId = id => Q.find(q => q.id === id);
+      // El bloque se parte en paquetes seguidos de 5 tarjetas como mucho (repartidos por igual), en el orden del libro.
+      function packsOf(bloque) {
+        const ids = Q.filter(q => q.b === bloque).map(q => q.id);
+        const n = Math.ceil(ids.length / 5), size = Math.ceil(ids.length / n), out = [];
+        for (let i = 0; i < ids.length; i += size) out.push(ids.slice(i, i + size));
+        return out;
+      }
+      function startCards(bloque, pi) {
+        const packs = packsOf(bloque);
+        if (pi === undefined) { pi = packs.findIndex(p => p.some(id => !learned[id])); if (pi < 0) pi = 0; }
+        deck = { bloque, packs, pi, pack: packs[pi], pos: 0, phase: 'learn', ok: new Set() };
+        showFlash();
+      }
+      function imgsHTML(id) {
+        const l = IMG[id];
+        return l ? `<div class="imgs">${l.map(n => `<img src="img/${n}.jpg" alt="Ilustración del libro" loading="lazy">`).join('')}</div>` : '';
+      }
+      function showFlash(flipped) {
+        hush();
+        const id = deck.pack[deck.pos], q = byId(id), b = BLOQUES[q.b - 1], toks = parse(q.a), learn = deck.phase === 'learn';
+        const nav = `<div class="rate"><button class="btn alt" id="prev" ${deck.pos === 0 ? 'disabled' : ''}>← Anterior</button>
+    <button class="btn alt" id="nextc" ${deck.pos === deck.pack.length - 1 ? 'disabled' : ''}>Siguiente →</button></div>`;
+        const steps = deck.pack.map(p => `<i class="${deck.ok.has(p) ? 'done' : p === id ? 'now' : ''}"></i>`).join('');
+        const tag = `<span class="tag">${b.icon} Bloque ${b.id}</span>`;
+        const sayBtn = canSpeak ? `<button class="say" id="say">🔊 Escuchar</button>` : '';
+        let html;
+        // Actividad de arrastrar a cajas (sustituye a las dos caras y a las palabras tapadas).
+        if (q.sort) {
+          const items = shuffle(Object.entries(q.sort).flatMap(([box, l]) => l.map(t => ({ t, box }))));
+          html = `<article class="fcard" style="--c:${b.c}">
+      <div class="tags">${tag}</div>
+      <h2 class="question">${q.q.split(':')[0]}:</h2>
+      <div class="pool" id="pool">${items.map(it => `<button class="chip schip" data-box="${it.box}">${esc(it.t)}</button>`).join('')}</div>
+      <div class="sboxes">${Object.keys(q.sort).map(n => `<div class="sbox" data-name="${n}"><h3>${n}</h3><div class="sitems"></div></div>`).join('')}</div>
+    </article>
+    <div class="rate one" id="rate" hidden><button class="btn know" id="know">✅ Me la sé</button></div>`;
+        }
+        // Actividad de unir parejas: toca una definición y luego su nombre (o al revés).
+        else if (q.pairs) {
+          const right = shuffle(q.pairs.map((p, i) => ({ t: p[1], i })));
+          html = `<article class="fcard" style="--c:${b.c}">
+      <div class="tags">${tag}</div>
+      <h2 class="question">${q.q.split('?')[0]}?</h2>
+      <div class="pairs">
+        <div class="pcol">${q.pairs.map((p, i) => `<button class="chip pitem" data-side="l" data-i="${i}">${esc(p[0])}</button>`).join('')}</div>
+        <div class="pcol">${right.map(r => `<button class="chip pitem" data-side="r" data-i="${r.i}">${esc(r.t)}</button>`).join('')}</div>
+      </div>
+    </article>
+    <div class="rate one" id="rate" hidden><button class="btn know" id="know">✅ Me la sé</button></div>`;
+        }
+        // Paso 1. Cara A: el contenido del libro para leer. Cara B: la pregunta sobre ese contenido.
+        else if (learn && !flipped) {
+          html = `<article class="fcard" style="--c:${b.c}">
       <div class="facehead"><div class="tags">${tag}</div>${sayBtn}</div>
       <h2 class="question">${q.q}</h2>
-      <p class="tapme">Piensa la respuesta y toca la tarjeta para darle la vuelta 👆</p></article>`;
-  } else if(learn){
-    html=`<article class="fcard flip" style="--c:${b.c}">
-      <div class="facehead"><div class="tags">${tag}</div>${sayBtn}</div>
-      <p class="qsmall">${q.q}</p>
-      <p class="answer">${toks.map(t=>t.t==='x'?esc(t.s):`<mark>${esc(t.ans)}</mark>`).join('')}</p>
+      <p class="answer">${toks.map(t => t.t === 'x' ? esc(t.s) : `<mark>${esc(t.ans)}</mark>`).join('')}</p>
+      ${q.mas ? `<p class="bubble">${q.mas}</p>` : ''}
       ${imgsHTML(id)}
-      ${q.truco?`<p class="truco">💡 ${q.truco}</p>`:''}
+      ${q.truco ? `<p class="truco">💡 ${q.truco}</p>` : ''}
+      <button class="btn alt flipbtn" id="flip">🔄 Dar la vuelta</button>
+    </article>`;
+        } else if (learn) {
+          html = `<article class="fcard flip" style="--c:${b.c}">
+      <div class="facehead"><div class="tags">${tag}</div>${sayBtn}</div>
+      <h2 class="question">${q.q}</h2>
+      <button class="btn alt flipbtn" id="flip">🔄 Dar la vuelta</button>
     </article>
-    <div class="rate"><button class="btn again" id="again">🔁 Otra vez</button><button class="btn know" id="know">✅ Me la sé</button></div>`;
-  } else {
-    html=`<article class="fcard" style="--c:${b.c}">
+    <div class="rate one"><button class="btn know" id="know">✅ Me la sé</button></div>`;
+        } else {
+          html = `<article class="fcard" style="--c:${b.c}">
       <div class="tags">${tag}</div>
       <h2 class="question">${q.q}</h2>
-      <p class="howto">Di en voz alta qué palabra hay debajo de cada recuadro. Luego tócalo para comprobarlo.</p>
-      <p class="answer">${toks.map(t=>t.t==='x'?esc(t.s):`<button class="cover" aria-label="Destapar palabra ${t.i+1}">${esc(t.ans)}</button>`).join('')}</p>
+      <p class="answer">${toks.map(t => t.t === 'x' ? esc(t.s) : `<button class="cover" aria-label="Destapar palabra ${t.i + 1}">${esc(t.ans)}</button>`).join('')}</p>
     </article>
     <div class="actions" id="uncover"><button class="btn alt" id="openall">Destapar todo</button></div>
     <div class="rate" id="rate" hidden><button class="btn again" id="again">🔁 Me faltó alguna</button><button class="btn know" id="know">✅ ¡Las dije todas!</button></div>`;
-  }
-  $('#app').innerHTML=`<div class="bar"><button class="linkbtn" id="exit">← Salir</button>
-    <div class="steps" aria-label="${deck.ok.size} de ${deck.pack.length} tarjetas">${steps}</div></div>${html}`;
-  $('#exit').onclick=showHome;
-  if($('#say')) $('#say').onclick=e=>{ e.stopPropagation(); speak(flipped ? plain(q.a) : q.q); };
-  if(learn && !flipped){ const c=$('#card'), go=()=>showFlash(true);
-    c.onclick=go; c.onkeydown=e=>{ if(e.target===c && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); go(); } }; }
-  if(!learn){
-    const covers=[...document.querySelectorAll('.cover')];
-    const check=()=>{ if(covers.every(c=>c.classList.contains('open'))){ $('#uncover').hidden=true; $('#rate').hidden=false; } };
-    covers.forEach(c=>c.onclick=()=>{ c.classList.add('open'); check(); });
-    $('#openall').onclick=()=>{ covers.forEach(c=>c.classList.add('open')); check(); };
-  }
-  if($('#know')) $('#know').onclick=()=>{ deck.ok.add(id); deck.queue.shift(); nextFlash(); };
-  if($('#again')) $('#again').onclick=()=>{ deck.queue.push(deck.queue.shift()); nextFlash(); };
-  window.scrollTo(0,0);
-}
-function nextFlash(){
-  if(deck.queue.length) return showFlash();
-  hush();
-  if(deck.phase==='learn'){
-    deck.phase='check'; deck.queue=shuffle(deck.pack); deck.ok=new Set();
-    $('#app').innerHTML=`<section class="endcard"><p class="big">🧠</p>
-      <h2>¡Ya has leído todas las tarjetas del paquete!</h2>
-      <p>Ahora vamos a tapar las palabras clave. Intenta decirlas tú sola antes de destaparlas.</p>
+        }
+        $('#app').innerHTML = `<div class="bar"><button class="linkbtn" id="exit">← Salir</button>
+    <div class="steps" aria-label="${deck.ok.size} de ${deck.pack.length} tarjetas">${steps}</div></div>${html}${nav}`;
+        $('#prev').onclick = () => { deck.pos--; showFlash(); };
+        $('#nextc').onclick = () => { deck.pos++; showFlash(); };
+        $('#exit').onclick = showHome;
+        if ($('#say')) $('#say').onclick = e => { e.stopPropagation(); speak(flipped ? q.q : q.q + ' ' + plain(q.a)); };
+        if ($('#flip')) $('#flip').onclick = () => showFlash(!flipped);
+        if (q.sort) initSort();
+        else if (q.pairs) initPairs();
+        else if (!learn) {
+          const covers = [...document.querySelectorAll('.cover')];
+          const check = () => { if (covers.every(c => c.classList.contains('open'))) { $('#uncover').hidden = true; $('#rate').hidden = false; } };
+          covers.forEach(c => c.onclick = () => { c.classList.add('open'); check(); });
+          $('#openall').onclick = () => { covers.forEach(c => c.classList.add('open')); check(); };
+        }
+        // "Me la sé": pasa a la siguiente que aún no se sabe. "Otra vez": repite esta misma tarjeta desde el principio.
+        if ($('#know')) $('#know').onclick = () => { deck.ok.add(id); nextFlash(); };
+        if ($('#again')) $('#again').onclick = () => showFlash();
+        window.scrollTo(0, 0);
+      }
+      // Arrastrar (dedo o ratón) cada palabra a su caja. También vale tocar la palabra y luego la caja.
+      function initSort() {
+        const pool = $('#pool'), boxes = [...document.querySelectorAll('.sbox')];
+        let sel = null;
+        const place = (chip, box) => {
+          chip.classList.remove('sel'); sel = null;
+          if (chip.dataset.box === box.dataset.name) {
+            chip.classList.add('ok'); chip.disabled = true; box.querySelector('.sitems').appendChild(chip);
+            if (!pool.querySelector('.schip')) { pool.hidden = true; $('#rate').hidden = false; }
+          } else {
+            chip.classList.add('bad'); setTimeout(() => chip.classList.remove('bad'), 700);
+          }
+        };
+        const boxAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest('.sbox'); };
+        pool.querySelectorAll('.schip').forEach(chip => chip.addEventListener('pointerdown', e => {
+          if (chip.disabled) return;
+          e.preventDefault();
+          const r = chip.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top, sx = e.clientX, sy = e.clientY;
+          let ghost = null, over = null;
+          const mv = ev => {
+            if (!ghost) {
+              if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
+              ghost = chip.cloneNode(true); ghost.classList.add('ghost'); ghost.style.width = r.width + 'px';
+              document.body.appendChild(ghost); chip.classList.add('dragging');
+            }
+            ghost.style.left = (ev.clientX - ox) + 'px'; ghost.style.top = (ev.clientY - oy) + 'px';
+            over = boxAt(ev.clientX, ev.clientY); boxes.forEach(bx => bx.classList.toggle('over', bx === over));
+          };
+          const up = () => {
+            document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
+            boxes.forEach(bx => bx.classList.remove('over'));
+            if (ghost) { ghost.remove(); chip.classList.remove('dragging'); if (over) place(chip, over); }
+            else { pool.querySelectorAll('.sel').forEach(c => c.classList.remove('sel')); chip.classList.add('sel'); sel = chip; }
+          };
+          document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+        }));
+        boxes.forEach(bx => bx.addEventListener('click', () => { if (sel) place(sel, bx); }));
+      }
+
+      function initPairs() {
+        const items = [...document.querySelectorAll('.pitem')];
+        let sel = null, n = 0;
+        items.forEach(it => it.onclick = () => {
+          if (it.disabled) return;
+          if (!sel || sel.dataset.side === it.dataset.side) {
+            items.forEach(x => x.classList.remove('sel')); it.classList.add('sel'); sel = it; return;
+          }
+          const a = sel; sel = null; a.classList.remove('sel');
+          if (a.dataset.i === it.dataset.i) {
+            n++;
+            [a, it].forEach(x => { x.classList.add('ok'); x.disabled = true; x.dataset.n = n; });
+            if (items.every(x => x.disabled)) $('#rate').hidden = false;
+          } else {
+            [a, it].forEach(x => { x.classList.add('bad'); setTimeout(() => x.classList.remove('bad'), 700); });
+          }
+        });
+      }
+
+      function nextFlash() {
+        const n = deck.pack.length;
+        for (let k = 1; k <= n; k++) { const p = (deck.pos + k) % n; if (!deck.ok.has(deck.pack[p])) { deck.pos = p; return showFlash(); } }
+        hush();
+        if (deck.phase === 'learn') {
+          deck.phase = 'check'; deck.pos = 0; deck.ok = new Set();
+          $('#app').innerHTML = `<section class="endcard"><p class="big">🧠</p>
+      <h2>¡Ahora, sin mirar!</h2>
       <div class="actions"><button class="btn" id="go">Vamos 💪</button></div></section>`;
-    $('#go').onclick=()=>showFlash();
-    window.scrollTo(0,0); return;
-  }
-  deck.pack.forEach(id=>learned[id]=true); saveCards();
-  const left=Q.filter(q=>q.b===deck.bloque && !learned[q.id]).length;
-  $('#app').innerHTML=`<section class="endcard"><p class="big">⭐⭐⭐</p>
-    <h2>${deck.review?'¡Repaso terminado!':`¡Has aprendido ${deck.pack.length} tarjetas!`}</h2>
-    <p>${left?`Te quedan ${left} tarjetas de este bloque.`:'¡Ya te sabes todas las tarjetas de este bloque! Ahora toca practicar como en la ficha ✍️'}</p>
-    <div class="actions">${left?'<button class="btn" id="more">Siguiente paquete 🃏</button>':''}
-      <button class="btn ${left?'alt':''}" id="prac">✍️ Practicar este bloque</button><button class="btn alt" id="home">Inicio</button></div></section>`;
-  if($('#more')) $('#more').onclick=()=>startCards(deck.bloque);
-  $('#prac').onclick=()=>startRound(deck.bloque);
-  $('#home').onclick=showHome;
-  window.scrollTo(0,0);
-}
+          $('#go').onclick = () => showFlash();
+          window.scrollTo(0, 0); return;
+        }
+        deck.pack.forEach(id => learned[id] = true); saveCards();
+        const more = deck.pi + 1 < deck.packs.length;
+        $('#app').innerHTML = `<section class="endcard"><p class="big">⭐</p>
+    <h2>¡Bien!</h2>
+    <div class="actions">${more ? '<button class="btn" id="more">Seguir 🃏</button>' : ''}
+      <button class="btn ${more ? 'alt' : ''}" id="prac">✍️ Practicar</button><button class="btn alt" id="home">Inicio</button></div></section>`;
+        confetti();
+        if ($('#more')) $('#more').onclick = () => startCards(deck.bloque, deck.pi + 1);
+        $('#prac').onclick = () => startRound(deck.bloque);
+        $('#home').onclick = showHome;
+        window.scrollTo(0, 0);
+      }
 
-/* ===== Final de ronda ===== */
-function showEnd(){
-  const n=round.results.filter(Boolean).length, t=round.results.length;
-  const title = round.exam ? `${n} de ${t}` : `${'⭐'.repeat(Math.max(1,Math.round(n/t*3)))}`;
-  const msg = n===t ? '¡Todas bien! Eres una detective de la salud 🏆' : n/t>=0.6 ? '¡Muy buen trabajo! Las que fallaste volverán a salir 💪' : 'Has practicado un montón. ¡Otra ronda y saldrán mejor! 🌱';
-  $('#app').innerHTML=`<section class="endcard">
+      /* ===== Mapa mental =====
+         Centro: el bloque. Ramas: una por tarjeta (título corto + palabras clave + dibujo del libro).
+         Tocar una rama la resalta y apaga las demás. */
+      const TIT = {
+        '1a': 'La salud', '1c': 'Factores', '1e': 'La enfermedad', '1f': 'Tipos de enfermedades',
+        'i1': 'Qué son', 'i2': 'Agentes infecciosos', 'i3': 'Por dónde entran', 'i4a': 'Contagiosas', 'i4b': 'No contagiosas',
+        'g1': 'Bacterias', 'g2': 'Hongos', 'g3': 'Protozoos', 'g4': 'Virus',
+        'n0': 'Qué son', 'n1': 'Cáncer', 'n2': 'Intoxicaciones', 'n3': 'Traumatismos', 'n4': 'Respiratorias', 'n5': 'Congénitas',
+        'n6': 'Cardiovasculares', 'n7': 'Alergias', 'n8': 'Nutricionales', 'n9': 'Estado de ánimo', 'n9e': 'Ejemplos de estado de ánimo',
+        'd1': 'Diagnóstico', 'd2': 'Síntomas', 'd3': 'Signos', 'd3e': 'Ejemplos de signos', 'd5': 'Medicamentos', 'd6': 'Antibióticos',
+        'd7a': 'Analgésicos', 'd7b': 'Antiinflamatorios', 'd9': 'Cirugía', 'd10': 'Prevenir', 'd11': 'Vacunas',
+        '4d': 'Sistema sanitario', '4e': 'Atención primaria y especializada'
+      };
+      // Explicación sencilla que sale al tocar cada rama del mapa.
+      const EXP = {
+        '1a': 'Tener salud es estar bien en todo: en el cuerpo (físico), en la mente (mental) y con los demás (social).',
+        '1c': 'Tu salud depende de tu edad, de cómo vives (lo que comes, si haces deporte…), de dónde vives y de la sanidad pública.',
+        '1e': 'Estar enfermo es cuando algo del cuerpo deja de funcionar bien durante un tiempo. La causa puede venir de dentro o de fuera.',
+        '1f': 'Hay dos grupos: las infecciosas, que las causa un bichito, y las no infecciosas, que tienen otras causas.',
+        'i1': 'Las causan los agentes infecciosos: seres vivos tan pequeños que no los vemos.',
+        'i2': 'Son seres vivos muy pequeñitos que se meten en nuestro cuerpo y hacen que funcione mal.',
+        'i3': 'Pueden entrar por tres sitios: por una herida, con el aire que respiramos o por la boca.',
+        'i4a': 'Las contagiosas pasan de una persona a otra, como la gripe, la COVID-19 o el sarampión.',
+        'i4b': 'Las no contagiosas no pasan de una persona a otra, como el tétanos.',
+        'g1': 'Las bacterias pueden causar la tuberculosis o la salmonelosis.',
+        'g2': 'Algunos hongos causan el pie de atleta o la tiña.',
+        'g3': 'Algunos protozoos viven dentro de las personas. El Plasmodium causa la malaria.',
+        'g4': 'Los virus causan la gripe, el resfriado común y la COVID-19.',
+        'n0': 'No las causa ningún bichito, muchas veces tienen varias causas y no se contagian.',
+        'n1': 'Pasa cuando nuestras propias células crecen sin control.',
+        'n2': 'Pasa cuando comemos, respiramos o tocamos algo tóxico, como un veneno.',
+        'n3': 'Son lesiones: quemaduras, huesos rotos (fracturas) o esguinces.',
+        'n4': 'Afectan al aparato respiratorio, el que usamos para respirar.',
+        'n5': 'Vienen desde que nacemos: se heredan o pasan durante el embarazo o el parto.',
+        'n6': 'Afectan al aparato circulatorio: el corazón y la sangre.',
+        'n7': 'El cuerpo reacciona de forma exagerada a cosas como el polen o el pelo de gato.',
+        'n8': 'Aparecen por comer mal.',
+        'n9': 'Afectan a cómo nos sentimos, cómo nos comportamos y cómo pensamos.',
+        'n9e': 'Dos ejemplos son la depresión y la anorexia.',
+        'd1': 'El médico hace de detective: mira los signos y los síntomas para descubrir qué enfermedad tienes.',
+        'd2': 'Lo que siente el paciente por dentro, como dolor, mareo o picor.',
+        'd3': 'Lo que el médico ve o mide desde fuera cuando te explora o te hace pruebas.',
+        'd3e': 'La fiebre de 38\u00a0ºC, las erupciones en la piel o un análisis de sangre.',
+        'd5': 'Son sustancias que curan la enfermedad o hacen que nos sintamos mejor.',
+        'd6': 'Sirven solo contra las bacterias. Contra los virus no funcionan.',
+        'd7a': 'Los analgésicos quitan el dolor y bajan la fiebre.',
+        'd7b': 'Los antiinflamatorios bajan la inflamación.',
+        'd9': 'Es operar: con instrumentos se curan partes del cuerpo dañadas.',
+        'd10': 'Prevenir es hacer cosas para que sea más difícil ponernos enfermos.',
+        'd11': 'Las vacunas impiden que cojamos una enfermedad.',
+        'c1': 'Lávate el cuerpo y el pelo a menudo para no coger infecciones ni oler mal.',
+        'c2': 'Ve a las revisiones del médico y ponte las vacunas cuando toca.',
+        'c3': 'No hagas cosas peligrosas que te puedan hacer daño.',
+        'c4': 'Lávate bien las manos y muchas veces al día.',
+        'c5': 'Lávate los dientes después de cada comida.',
+        'c6': 'Si te haces una herida, desinféctala.',
+        'c7': 'Come de forma sana.',
+        'c8': 'Cuida cómo te sientes por dentro.',
+        'c9': 'Haz ejercicio todos los días y no pases mucho tiempo sentada.',
+        'c10': 'Descansa y duerme lo que necesitas.',
+        '4d': 'Son las personas y los medios que tiene un país para prevenir, descubrir y curar las enfermedades.',
+        '4e': 'Atención primaria: el centro de salud o ambulatorio. Atención especializada: el hospital.'
+      };
+      const MAPC = ['#E4572E', '#E8A10C', '#23A06A', '#2B8CC4', '#8E5CD9', '#D6457A', '#139E9E', '#6E9A0A', '#C2671D', '#5B6CD9'];
+      function showMap(bloque) {
+        round = null; deck = null; hush();
+        const b = BLOQUES[bloque - 1];
+        const br = Q.filter(q => q.b === bloque && !q.sort && !q.pairs).map((q, i) => ({
+          t: TIT[q.id] || q.a.split(':')[0], img: IMG[q.id] && IMG[q.id][0], c: MAPC[i % MAPC.length], x: EXP[q.id],
+          kws: [...new Set(blanksOf(q).map(x => x.ans))]
+        }));
+        const half = Math.ceil(br.length / 2);
+        const node = (n, k) => `<div class="mnode" role="button" tabindex="0" data-k="${k}" style="--m:${n.c}">
+          ${n.img ? `<img src="img/${n.img}.jpg" alt="">` : ''}
+          <span class="mtxt"><span class="mt">${esc(n.t)}</span><span class="mk">${n.kws.map(w => `<span>${esc(w)}</span>`).join('')}</span></span>${n.x ? `<span class="mexp">${esc(n.x)}${canSpeak ? `<button class="say msay">🔊 Escuchar</button>` : ''}</span>` : ''}</div>`;
+        $('#app').innerHTML = `<div class="bar"><button class="linkbtn" id="exit">← Salir</button></div>
+    <div class="mmap" style="--c:${b.c}">
+      <svg class="mlines" aria-hidden="true"></svg>
+      <div class="mcol">${br.slice(0, half).map((n, i) => node(n, i)).join('')}</div>
+      <div class="mcenter"><span class="mico">${b.icon}</span>${esc(b.nombre)}</div>
+      <div class="mcol">${br.slice(half).map((n, i) => node(n, i + half)).join('')}</div>
+    </div>`;
+        $('#exit').onclick = showHome;
+        const map = $('.mmap'), svg = $('.mlines'), center = $('.mcenter'), nodes = [...map.querySelectorAll('.mnode')];
+        const draw = () => {
+          const M = map.getBoundingClientRect(), C = center.getBoundingClientRect();
+          svg.setAttribute('width', M.width); svg.setAttribute('height', M.height);
+          // Con una sola columna (pantalla estrecha) las ramas cuelgan de una línea vertical a la izquierda.
+          const stacked = getComputedStyle(map).gridTemplateColumns.split(' ').length < 3;
+          svg.innerHTML = nodes.map((n, k) => {
+            const N = n.getBoundingClientRect(), col = br[k].c, ny = N.top + N.height / 2 - M.top;
+            let d;
+            if (stacked) { const x = 6, y0 = C.bottom - M.top; d = `M${x} ${y0} L${x} ${ny - 14} Q${x} ${ny} ${x + 14} ${ny} L${N.left - M.left} ${ny}`; }
+            else {
+              const left = N.right < C.left, cx = (left ? C.left : C.right) - M.left, cy = C.top + C.height / 2 - M.top, nx = (left ? N.right : N.left) - M.left, mx = (cx + nx) / 2;
+              d = `M${cx} ${cy} C${mx} ${cy} ${mx} ${ny} ${nx} ${ny}`;
+            }
+            return `<path d="${d}" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+          }).join('');
+        };
+        draw();
+        if (window.ResizeObserver) new ResizeObserver(draw).observe(map);
+        map.querySelectorAll('img').forEach(im => im.addEventListener('load', draw));
+        nodes.forEach((n, k) => {
+          const toggle = () => {
+            hush();
+            const on = !n.classList.contains('on');
+            nodes.forEach(x => x.classList.remove('on')); if (on) n.classList.add('on');
+            map.classList.toggle('focus', on);
+            draw();
+          };
+          n.onclick = toggle;
+          n.onkeydown = e => { if (e.target === n && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(); } };
+          const sb = n.querySelector('.msay');
+          if (sb) sb.onclick = e => { e.stopPropagation(); speak(br[k].t + '. ' + br[k].x); };
+        });
+        window.scrollTo(0, 0);
+      }
+
+      /* ===== Final de ronda ===== */
+      function showEnd() {
+        const n = round.results.filter(Boolean).length, t = round.results.length;
+        const title = round.exam ? `${n} de ${t}` : `${'⭐'.repeat(Math.max(1, Math.round(n / t * 3)))}`;
+        const msg = n === t ? '¡Todas bien! Eres una detective de la salud 🏆' : n / t >= 0.6 ? '¡Muy buen trabajo! Las que fallaste volverán a salir 💪' : 'Has practicado un montón. ¡Otra ronda y saldrán mejor! 🌱';
+        $('#app').innerHTML = `<section class="endcard">
     <p class="big">${title}</p><h2>${msg}</h2>
-    <ul class="rlist">${round.cards.map((c,i)=>`<li><span>${round.results[i]?'✅':'🔁'}</span><span>${c.q.q}</span></li>`).join('')}</ul>
-    <div class="actions"><button class="btn" id="again">${round.exam?'Otro simulacro':'Otra ronda'}</button><button class="btn alt" id="home">Inicio</button></div>
+    <ul class="rlist">${round.cards.map((c, i) => `<li><span>${round.results[i] ? '✅' : '🔁'}</span><span>${c.q.q}</span></li>`).join('')}</ul>
+    <div class="actions"><button class="btn" id="again">${round.exam ? 'Otro simulacro' : 'Otra ronda'}</button><button class="btn alt" id="home">Inicio</button></div>
   </section>`;
-  $('#again').onclick=()=> round.exam ? startExam() : startRound(round.bloque);
-  $('#home').onclick=showHome;
-  window.scrollTo(0,0);
-}
+        $('#again').onclick = () => round.exam ? startExam() : startRound(round.bloque);
+        $('#home').onclick = showHome;
+        confetti();
+        window.scrollTo(0, 0);
+      }
 
-showHome();
-</script>
+      // Confeti de un segundo para celebrar. No sale si la tablet tiene reducido el movimiento.
+      function confetti() {
+        if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const cv = document.createElement('canvas'), W = innerWidth, H = innerHeight, dpr = devicePixelRatio || 1;
+        cv.width = W * dpr; cv.height = H * dpr;
+        Object.assign(cv.style, { position: 'fixed', inset: '0', width: W + 'px', height: H + 'px', pointerEvents: 'none', zIndex: 60 });
+        document.body.appendChild(cv);
+        const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+        const cols = ['#E4572E', '#E8A10C', '#23A06A', '#2B8CC4', '#8E5CD9', '#D6457A'];
+        const ps = Array.from({ length: 90 }, () => ({
+          x: W / 2 + (Math.random() - .5) * 80, y: H * .35, vx: (Math.random() - .5) * 12, vy: -Math.random() * 12 - 4,
+          s: 6 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: cols[Math.floor(Math.random() * cols.length)]
+        }));
+        const t0 = performance.now();
+        const tick = t => {
+          const k = (t - t0) / 1300;
+          ctx.clearRect(0, 0, W, H);
+          if (k >= 1) return cv.remove();
+          ctx.globalAlpha = 1 - k * k;
+          ps.forEach(p => { p.vy += .45; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore(); });
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+
+      showHome();
+    </script>
