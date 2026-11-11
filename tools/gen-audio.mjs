@@ -11,12 +11,13 @@ const EXP = eval('(' + grab('const EXP = {', '\n      }') + ')');
 
 // Debe coincidir con plain() y voiceKey() de index.html
 const plain = a => a.replace(/\[([^\]#]+)(#[^\]]*)?\]/g, '$1');
+const ttl = s => s.replace(/\s*Pon (un ejemplo|ejemplos)\.$/, '').replace(/^Pon ejemplos de (.*)\.$/, 'Ejemplos de $1');
 const voiceKey = t => { let h = 2166136261; for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };
 
 const texts = new Set();
 for (const q of Q) {
   texts.add(q.q);
-  if (q.a) texts.add(q.q + ' ' + plain(q.a));
+  if (q.a) texts.add(ttl(q.q) + ' ' + plain(q.a));
   if (EXP[q.id]) texts.add((TIT[q.id] || q.a.split(':')[0]) + '. ' + EXP[q.id]);
 }
 

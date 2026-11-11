@@ -315,6 +315,8 @@
         background: var(--ok); color: #fff; font-size: .8rem; display: grid; place-items: center; }
       .pitem.bad { background: var(--err-soft); box-shadow: inset 0 0 0 2px var(--err); }
 
+      .okflash { margin: 0; text-align: center; font-size: 4rem; line-height: 1; color: var(--ok); font-weight: 800; }
+
       .bphoto {
         width: 100%;
         aspect-ratio: 16 / 10;
@@ -946,18 +948,18 @@
       ];
       const Q = [
         // BLOQUE 1
-        { id: '1a', b: 1, q: '¿Qué es la salud?', a: 'La salud es un estado de completo [bienestar] [físico#a], [mental#a] y [social#a].' },
+        { id: '1a', b: 1, q: '¿Qué es la salud?', a: 'La salud es un estado de completo bienestar [físico#a], [mental#a] y [social#a].' },
         { id: '1c', b: 1, q: '¿Qué factores influyen más en nuestra salud?', a: 'Los factores que más influyen en nuestra salud son: la [edad#a], nuestro [estilo de vida#a], nuestro [entorno#a] y la [salud pública#a].' },
-        { id: '1e', b: 1, q: '¿Qué es la enfermedad?', a: 'La enfermedad es una [alteración] del [funcionamiento] del [organismo] o de alguna de sus partes debida a una causa [interna#a] o [externa#a], que se mantiene durante un [período de tiempo].' },
+        { id: '1e', b: 1, q: '¿Qué es la enfermedad?', a: 'La enfermedad es una [alteración] del [funcionamiento] del organismo o de alguna de sus partes debida a una causa interna o externa, que se mantiene durante un [período de tiempo].' },
         { id: '1f', b: 1, q: 'Según las causas que las provocan, ¿qué tipos de enfermedades existen?', a: 'Según las causas que las provocan, existen dos tipos de enfermedades: las [infecciosas] y las [no infecciosas].' },
-        { id: '4d', b: 1, q: '¿Qué es el sistema sanitario?', a: 'Es el conjunto de [personas#a] y [medios materiales#a] de los que dispone un [país] para [prevenir#b], [diagnosticar#b] y [tratar#b] las enfermedades de la población.' },
-        { id: '4e', b: 1, q: '¿Cómo se divide nuestro sistema sanitario?', a: 'Atención [primaria]: [centros de salud#a] o [ambulatorios#a]. Atención [especializada]: [hospitales].', truco: 'PRIMARIA = a donde vas primero (centro de salud). ESPECIALIZADA = el hospital 🏥' },
+        { id: '4d', b: 1, q: '¿Qué es el sistema sanitario?', a: 'Es el conjunto de [personas#a] y [medios materiales#a] de los que dispone un país para [prevenir], diagnosticar y tratar las enfermedades de la población.' },
+        { id: '4e', b: 1, q: '¿Cómo se divide nuestro sistema sanitario?', a: 'Atención primaria: [centros de salud] o ambulatorios. Atención especializada: [hospitales].', truco: 'PRIMARIA = a donde vas primero (centro de salud). ESPECIALIZADA = el hospital 🏥' },
         // BLOQUE 2
         { id: 'i1', b: 2, q: '¿Qué son las enfermedades infecciosas?', a: 'Las enfermedades infecciosas son las que están provocadas por los [agentes infecciosos].' },
         { id: 'i2', b: 2, q: '¿Qué son los agentes infecciosos?', a: 'Los agentes infecciosos son [seres vivos] muy [pequeños] que [entran] en nuestro cuerpo y [alteran] su funcionamiento.' },
         { id: 'i3', b: 2, q: '¿Por dónde pueden entrar los agentes infecciosos en nuestro cuerpo?', a: 'Los agentes infecciosos pueden entrar en nuestro cuerpo a través de [heridas#a], por el [aire#a] o por la [boca#a].' },
-        { id: 'i4a', b: 2, q: '¿Qué son las enfermedades contagiosas? Pon ejemplos.', a: 'Las [contagiosas]: se [transmiten] de unas personas a otras. Por ejemplo, la [gripe#a], la [COVID-19#a] o el [sarampión#a].' },
-        { id: 'i4b', b: 2, q: '¿Qué son las enfermedades no contagiosas? Pon un ejemplo.', a: 'Las [no contagiosas]: [no se transmiten] de unas personas a otras. Por ejemplo, el [tétanos].' },
+        { id: 'i4a', b: 2, q: '¿Qué son las enfermedades contagiosas? Pon ejemplos.', a: 'Las contagiosas: se [transmiten] de unas personas a otras. Por ejemplo, la [gripe#a], la COVID-19 o el [sarampión#a].' },
+        { id: 'i4b', b: 2, q: '¿Qué son las enfermedades no contagiosas? Pon un ejemplo.', a: 'Las no contagiosas: [no se transmiten] de unas personas a otras. Por ejemplo, el [tétanos].' },
         // BLOQUE 3
         { id: 'g1', b: 3, q: '¿Qué enfermedades provocan las bacterias?', a: 'Algunas enfermedades provocadas por bacterias son la [tuberculosis#a] o la [salmonelosis#a].' },
         { id: 'g2', b: 3, q: '¿Qué enfermedades provocan los hongos?', a: 'Algunos hongos provocan enfermedades como el [pie de atleta#a] o la [tiña#a].' },
@@ -966,42 +968,42 @@
         // BLOQUE 2
         { id: 'n0', b: 4, q: '¿Qué son las enfermedades no infecciosas?', a: 'Las enfermedades no infecciosas son las que están producidas por causas distintas a los [agentes infecciosos]. A menudo tienen [más de una causa] y [no se transmiten] entre personas.' },
         { id: 'n1', b: 4, q: '¿Qué es el cáncer?', a: 'Se produce por un [crecimiento descontrolado] de nuestras propias [células].' },
-        { id: 'n2', b: 4, q: '¿Cómo se producen las intoxicaciones?', a: 'Se producen al [ingerir#a], [respirar#a] o [tocar#a] sustancias [tóxicas].' },
+        { id: 'n2', b: 4, q: '¿Cómo se producen las intoxicaciones?', a: 'Se producen al [ingerir#a], [respirar#a] o [tocar#a] sustancias tóxicas.' },
         { id: 'n3', b: 4, q: '¿Qué son los traumatismos?', a: 'Lesiones como las [quemaduras#a], [fracturas#a], [esguinces#a], etc.' },
         { id: 'n4', b: 4, q: '¿A qué afectan las enfermedades respiratorias?', a: 'Afectan al aparato [respiratorio].' },
-        { id: 'n5', b: 4, q: '¿A qué se deben las enfermedades congénitas?', a: 'Se deben a [fallos] que se [heredan] o se producen en el [embarazo#a] o [parto#a].' },
+        { id: 'n5', b: 4, q: '¿A qué se deben las enfermedades congénitas?', a: 'Se deben a fallos que se [heredan] o se producen en el [embarazo#a] o [parto#a].' },
         { id: 'n6', b: 4, q: '¿A qué afectan las enfermedades cardiovasculares?', a: 'Afectan al aparato [circulatorio].' },
         { id: 'n7', b: 4, q: '¿Qué son las alergias?', a: '[Reacciones exageradas] de nuestro cuerpo a sustancias como el [polen#a], [pelo de gatos#a], etc.' },
         { id: 'n8', b: 4, q: '¿Qué son las enfermedades nutricionales?', a: 'Están relacionadas con la [mala alimentación].' },
         { id: 'n9', b: 4, q: '¿Qué son las enfermedades del estado de ánimo o del comportamiento?', a: 'Enfermedades que afectan a nuestro [estado de ánimo] o a la manera de [comportarnos#b] y de [pensar#b].' },
         { id: 'n9e', b: 4, q: 'Pon ejemplos de enfermedades del estado de ánimo o del comportamiento.', a: 'Por ejemplo, la [depresión#a] y la [anorexia#a].' },
         // BLOQUE 3
-        { id: 'd1', b: 5, q: '¿Qué es un diagnóstico?', a: 'Un diagnóstico es [descubrir] qué [enfermedad] padece una persona estudiando los [signos#a] y los [síntomas#a] que presenta.' },
-        { id: 'd2', b: 5, q: '¿Qué son los síntomas? Pon ejemplos.', a: 'Los síntomas son las [sensaciones] de malestar y cambio que percibe el [paciente] (ej. [dolor#a], [mareo#a], [picor#a]).', mas: 'Otros síntomas: dolor de cabeza, dolor de tripa, cansancio, ganas de vomitar, escalofríos, picor de garganta.' },
+        { id: 'd1', b: 5, q: '¿Qué es un diagnóstico?', a: 'Un diagnóstico es [descubrir] qué enfermedad padece una persona estudiando los [signos#a] y los [síntomas#a] que presenta.' },
+        { id: 'd2', b: 5, q: '¿Qué son los síntomas? Pon ejemplos.', a: 'Los síntomas son las [sensaciones] de malestar y cambio que percibe el paciente (ej. [dolor#a], [mareo#a], picor).' },
         { id: 'd3', b: 5, q: '¿Qué son los signos?', a: 'Los signos son las [manifestaciones] de la enfermedad que se observan tras una [exploración médica] o haciendo [pruebas diagnósticas].' },
-        { id: 'd3e', b: 5, q: 'Pon ejemplos de signos.', a: 'Por ejemplo: [fiebre#a] de 38 ºC, [erupciones#a], [análisis de sangre#a].', mas: 'Otros signos: granos o manchas en la piel, garganta roja, hinchazón, ojos rojos, tensión alta, un hueso roto en una radiografía.' },
-        { id: 'd4', b: 5, q: 'Clasifica las siguientes situaciones según correspondan a signos o síntomas de una enfermedad: dolor, temperatura de 38 º, mareo, picor, presencia de habones rojos en la piel, anginas inflamadas, elevado número de glóbulos blancos en la sangre.', a: 'Síntomas: [dolor#a], [mareo#a], [picor#a].\nSignos: [temperatura de 38 º#b], presencia de [habones rojos#b] en la piel, [anginas inflamadas#b], elevado número de [glóbulos blancos#b] en la sangre.',
+        { id: 'd3e', b: 5, q: 'Pon ejemplos de signos.', a: 'Por ejemplo: [fiebre#a] de 38 ºC, [erupciones#a], [análisis de sangre#a].' },
+        { id: 'd4', b: 5, q: 'Clasifica en signos o síntomas:', a: 'Síntomas: [dolor#a], [mareo#a], [picor#a].\nSignos: [temperatura de 38 º#b], presencia de [habones rojos#b] en la piel, [anginas inflamadas#b], elevado número de [glóbulos blancos#b] en la sangre.',
           sort: { 'Síntomas': ['dolor', 'mareo', 'picor'], 'Signos': ['temperatura de 38 º', 'presencia de habones rojos en la piel', 'anginas inflamadas', 'elevado número de glóbulos blancos en la sangre'] } },
         { id: 'd5', b: 5, q: '¿Qué son los medicamentos?', a: 'Algunas enfermedades se tratan con medicamentos, que son [sustancias] que [curan] la causa de la enfermedad o [alivian] sus síntomas.' },
         { id: 'd6', b: 5, q: '¿Para qué sirven los antibióticos?', a: 'Los antibióticos: para el tratamiento de enfermedades causadas solo por [bacterias].' },
-        { id: 'd7a', b: 5, q: '¿Para qué sirven los analgésicos?', a: 'Los medicamentos para tratar el [malestar], entre los que están los analgésicos, para reducir el [dolor#a] y bajar la [fiebre#a].' },
+        { id: 'd7a', b: 5, q: '¿Para qué sirven los analgésicos?', a: 'Los medicamentos para tratar el malestar, entre los que están los analgésicos, para reducir el [dolor#a] y bajar la [fiebre#a].' },
         { id: 'd7b', b: 5, q: '¿Para qué sirven los antiinflamatorios?', a: 'Los antiinflamatorios, empleados para reducir la [inflamación].' },
         { id: 'd8', b: 5, q: '¿A qué tipo de medicamento corresponden estas definiciones? a) Alivia el dolor. b) Elimina bacterias que causan infección. c) Previene que se desarrolle una enfermedad.', a: 'a) [Analgésico].\nb) [Antibiótico].\nc) [Vacuna].',
           pairs: [['a) Alivia el dolor.', 'Analgésico'], ['b) Elimina bacterias que causan infección.', 'Antibiótico'], ['c) Previene que se desarrolle una enfermedad.', 'Vacuna']] },
-        { id: 'd9', b: 5, q: '¿Qué es la cirugía?', a: 'Otras enfermedades necesitan tratamientos de cirugía, que son [técnicas] que utilizan [instrumentos] para [curar] partes del cuerpo [dañadas].' },
+        { id: 'd9', b: 5, q: '¿Qué es la cirugía?', a: 'Otras enfermedades necesitan tratamientos de cirugía, que son técnicas que utilizan [instrumentos] para [curar] partes del cuerpo dañadas.' },
         { id: 'd10', b: 5, q: '¿Qué es prevenir una enfermedad?', a: 'Prevenir una enfermedad es [reducir el riesgo] de padecerla.' },
-        { id: 'd11', b: 5, q: '¿Qué son las vacunas?', a: 'Las vacunas, por ejemplo, son [preparados] que [impiden] que desarrollemos una [enfermedad].' },
+        { id: 'd11', b: 5, q: '¿Qué son las vacunas?', a: 'Las vacunas, por ejemplo, son [preparados] que [impiden] que desarrollemos una enfermedad.' },
         // BLOQUE 4
-        { id: 'c1', b: 6, q: '¿Cómo cuidamos nuestra higiene corporal?', a: 'Higiene corporal: Realiza una buena [higiene corporal]. Lava tu [cuerpo#c] y tu [cabello#c] a menudo para prevenir [infecciones#a] y [olores desagradables#a].' },
+        { id: 'c1', b: 6, q: '¿Cómo cuidamos nuestra higiene corporal?', a: 'Higiene corporal: Realiza una buena higiene corporal. Lava tu [cuerpo#c] y tu [cabello#c] a menudo para prevenir [infecciones] y olores desagradables.' },
         { id: 'c2', b: 6, q: '¿Qué debes hacer con las revisiones médicas y las vacunas?', a: 'Revisiones y vacunas: No te olvides de las [revisiones médicas] y sigue el [calendario de vacunación].' },
         { id: 'c3', b: 6, q: '¿Qué es la prevención de conductas de riesgo?', a: 'Prevención de conductas de riesgo: [Evita] conductas que pongan en [riesgo] tu salud.' },
         { id: 'c4', b: 6, q: '¿Cómo debes lavarte las manos?', a: 'Higiene de manos: Lávate las [manos] de forma [adecuada#a] y [frecuente#a].' },
         { id: 'c5', b: 6, q: '¿Cuándo debes lavarte los dientes?', a: 'Salud bucodental: Lávate los [dientes] después de [cada comida].' },
         { id: 'c6', b: 6, q: '¿Qué debes hacer con las heridas?', a: 'Desinfección de heridas: [Desinfecta] tus [heridas].' },
         { id: 'c7', b: 6, q: '¿Cómo debes comer?', a: 'Alimentación saludable: Come de forma [saludable].' },
-        { id: 'c8', b: 6, q: '¿Qué consejo debes seguir sobre el bienestar emocional?', a: 'Bienestar emocional: Cuida tu [bienestar emocional].' },
-        { id: 'c9', b: 6, q: '¿Qué consejo debes seguir sobre el ejercicio físico?', a: 'Ejercicio físico: Realiza [ejercicio] a [diario] y evita el [sedentarismo].' },
-        { id: 'c10', b: 6, q: '¿Qué consejo debes seguir sobre el descanso y el sueño?', a: 'Descanso y sueño: [Descansa#a] y [duerme#a].' },
+        { id: 'c8', b: 6, q: '¿Cómo cuidas tu bienestar emocional?', a: 'Bienestar emocional: Cuida tu [bienestar emocional].' },
+        { id: 'c9', b: 6, q: '¿Cómo cuidas tu cuerpo con el ejercicio?', a: 'Ejercicio físico: Realiza [ejercicio] a [diario] y evita el [sedentarismo].' },
+        { id: 'c10', b: 6, q: '¿Cómo descansas?', a: 'Descanso y sueño: [Descansa#a] y [duerme#a].' },
       ];
 
       // Ilustraciones del libro (carpeta img/). Solo se enseñan en el reverso de la tarjeta.
@@ -1070,6 +1072,8 @@
       /* ===== Leer en voz alta ===== */
       const canSpeak = 'speechSynthesis' in window;
       const plain = a => a.replace(/\[([^\]#]+)(#[^\]]*)?\]/g, '$1');
+      // Título de la cara del contenido: la pregunta sin "Pon un ejemplo / Pon ejemplos".
+      const ttl = s => s.replace(/\s*Pon (un ejemplo|ejemplos)\.$/, '').replace(/^Pon ejemplos de (.*)\.$/, 'Ejemplos de $1');
       // Audios pregrabados en audio/<hash>.mp3 (tools/gen-audio.mjs); si falta, voz del navegador.
       const voiceKey = t => { let h = 2166136261; for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };
       let clip = null;
@@ -1285,12 +1289,15 @@
           if (ok && round.exam) { levels[q.id] = 3; save(); }
           if (!ok && !round.exam && !card.retry) { round.cards.splice(Math.min(round.idx + 3, round.cards.length), 0, { q, level: L, retry: true }); }
           $('#check').remove(); if ($('#tip')) $('#tip').remove();
+          const goNext = () => { round.idx++; round.idx < round.cards.length ? showCard() : showEnd(); };
+          // Acierto en la práctica: un ✓ y a la siguiente, sin más texto.
+          if (ok && !round.exam) { $('#fb').innerHTML = '<p class="okflash" aria-label="Correcto">✓</p>'; setTimeout(goNext, 800); return; }
           const last = round.idx === round.cards.length - 1;
           $('#fb').innerHTML = `<section class="fb ${ok ? 'good' : 'bad'}" aria-live="polite">
       <p class="msg">${ok ? pick(OK_MSG) : pick(BAD_MSG)}</p>${extra}
       <p class="label">Así lo dice el libro</p><p class="book">${bookHTML}</p>
       <div><button class="btn" id="next">${last ? 'Ver resultado' : 'Siguiente →'}</button></div></section>`;
-          $('#next').onclick = () => { round.idx++; round.idx < round.cards.length ? showCard() : showEnd(); };
+          $('#next').onclick = goNext;
           $('#fb').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         };
         window.scrollTo(0, 0);
@@ -1353,7 +1360,7 @@
         else if (learn && !flipped) {
           html = `<article class="fcard" style="--c:${b.c}">
       <div class="facehead"><div class="tags">${tag}</div>${sayBtn}</div>
-      <h2 class="question">${q.q}</h2>
+      <h2 class="question">${ttl(q.q)}</h2>
       <p class="answer">${toks.map(t => t.t === 'x' ? esc(t.s) : `<mark>${esc(t.ans)}</mark>`).join('')}</p>
       ${q.mas ? `<p class="bubble">${q.mas}</p>` : ''}
       ${imgsHTML(id)}
@@ -1381,7 +1388,7 @@
         $('#prev').onclick = () => { deck.pos--; showFlash(); };
         $('#nextc').onclick = () => { deck.pos++; showFlash(); };
         $('#exit').onclick = showHome;
-        if ($('#say')) $('#say').onclick = e => { e.stopPropagation(); speak(flipped ? q.q : q.q + ' ' + plain(q.a)); };
+        if ($('#say')) $('#say').onclick = e => { e.stopPropagation(); speak(flipped ? q.q : ttl(q.q) + ' ' + plain(q.a)); };
         if ($('#flip')) $('#flip').onclick = () => showFlash(!flipped);
         if (q.sort) initSort();
         else if (q.pairs) initPairs();
@@ -1458,14 +1465,6 @@
         const n = deck.pack.length;
         for (let k = 1; k <= n; k++) { const p = (deck.pos + k) % n; if (!deck.ok.has(deck.pack[p])) { deck.pos = p; return showFlash(); } }
         hush();
-        if (deck.phase === 'learn') {
-          deck.phase = 'check'; deck.pos = 0; deck.ok = new Set();
-          $('#app').innerHTML = `<section class="endcard"><p class="big">🧠</p>
-      <h2>¡Ahora, sin mirar!</h2>
-      <div class="actions"><button class="btn" id="go">Vamos 💪</button></div></section>`;
-          $('#go').onclick = () => showFlash();
-          window.scrollTo(0, 0); return;
-        }
         deck.pack.forEach(id => learned[id] = true); saveCards();
         const more = deck.pi + 1 < deck.packs.length;
         $('#app').innerHTML = `<section class="endcard"><p class="big">⭐</p>
@@ -1602,10 +1601,8 @@
       function showEnd() {
         const n = round.results.filter(Boolean).length, t = round.results.length;
         const title = round.exam ? `${n} de ${t}` : `${'⭐'.repeat(Math.max(1, Math.round(n / t * 3)))}`;
-        const msg = n === t ? '¡Todas bien! Eres una detective de la salud 🏆' : n / t >= 0.6 ? '¡Muy buen trabajo! Las que fallaste volverán a salir 💪' : 'Has practicado un montón. ¡Otra ronda y saldrán mejor! 🌱';
         $('#app').innerHTML = `<section class="endcard">
-    <p class="big">${title}</p><h2>${msg}</h2>
-    <ul class="rlist">${round.cards.map((c, i) => `<li><span>${round.results[i] ? '✅' : '🔁'}</span><span>${c.q.q}</span></li>`).join('')}</ul>
+    <p class="big">${title}</p>
     <div class="actions"><button class="btn" id="again">${round.exam ? 'Otro simulacro' : 'Otra ronda'}</button><button class="btn alt" id="home">Inicio</button></div>
   </section>`;
         $('#again').onclick = () => round.exam ? startExam() : startRound(round.bloque);
