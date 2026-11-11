@@ -1070,13 +1070,23 @@
       /* ===== Leer en voz alta ===== */
       const canSpeak = 'speechSynthesis' in window;
       const plain = a => a.replace(/\[([^\]#]+)(#[^\]]*)?\]/g, '$1');
-      function speak(t) {
+      // Audios pregrabados en audio/<hash>.mp3 (tools/gen-audio.mjs); si falta, voz del navegador.
+      const voiceKey = t => { let h = 2166136261; for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };
+      let clip = null;
+      function robot(t) {
         if (!canSpeak) return; try {
           speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'es-ES'; u.rate = .9;
           const v = speechSynthesis.getVoices().find(v => (v.lang || '').toLowerCase().startsWith('es')); if (v) u.voice = v; speechSynthesis.speak(u);
         } catch (e) { }
       }
-      const hush = () => { if (canSpeak) try { speechSynthesis.cancel(); } catch (e) { } };
+      function speak(t) {
+        hush();
+        const a = clip = new Audio(`audio/${voiceKey(t)}.mp3`);
+        const fall = () => { if (clip === a) { clip = null; robot(t); } };
+        a.onerror = fall;
+        a.play().catch(e => { if (e.name !== 'AbortError') fall(); });
+      }
+      const hush = () => { if (clip) { clip.onerror = null; clip.pause(); clip = null; } if (canSpeak) try { speechSynthesis.cancel(); } catch (e) { } };
 
       /* ===== Estado de la ronda ===== */
       let round = null; // {cards:[{q,level,retry}], idx, results:[], exam, bloque}
